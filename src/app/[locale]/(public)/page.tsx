@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { PublicSiteShell } from "@/components/layout/public-site-shell";
 import { HomePageContent } from "@/components/home/home-page-content";
 import { BRAND } from "@/lib/constants";
 
@@ -12,9 +11,5 @@ export async function generateMetadata() {
 }
 
 export default function HomePage() {
-  return (
-    <PublicSiteShell>
-      <HomePageContent />
-    </PublicSiteShell>
-  );
+  return <HomePageContent />;
 }

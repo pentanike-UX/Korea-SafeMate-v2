@@ -10,76 +10,78 @@ export async function SiteFooter() {
   const tHeader = await getTranslations("Header");
 
   return (
-    <footer className="border-t bg-muted/30">
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <div className="flex flex-col gap-8 sm:flex-row sm:justify-between">
-          <div>
-            <p className="text-foreground text-sm font-semibold">{BRAND.name}</p>
-            <p className="text-muted-foreground mt-1 max-w-sm text-sm leading-relaxed">
-              {tBrand("description")}
-            </p>
+    <footer className="border-t border-border/80 bg-[var(--bg-surface-subtle)]">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+        <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
+          <div className="max-w-sm">
+            <p className="text-text-strong text-sm font-semibold">{BRAND.name}</p>
+            <p className="text-muted-foreground mt-1 text-sm leading-snug">{tBrand("tagline")}</p>
+            <p className="text-muted-foreground mt-4 text-xs leading-relaxed">{tFooter("disclaimerShort")}</p>
           </div>
-          <div className="grid grid-cols-2 gap-8 text-sm sm:grid-cols-3">
+          <nav className="grid grid-cols-2 gap-x-10 gap-y-1 text-sm sm:grid-cols-3" aria-label="Footer">
             <div>
-              <p className="text-foreground font-medium">{tFooter("product")}</p>
-              <ul className="text-muted-foreground mt-2 space-y-2">
+              <p className="text-text-strong mb-2 text-xs font-semibold uppercase tracking-wider">
+                {tFooter("product")}
+              </p>
+              <ul className="text-muted-foreground space-y-1.5">
                 <li>
-                  <Link href="/explore" className="hover:text-foreground">
+                  <Link href="/explore" className="hover:text-foreground transition-colors">
                     {tNav("explore")}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/guardians" className="hover:text-foreground">
-                    {tNav("guardians")}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/services" className="hover:text-foreground">
+                  <Link href="/services" className="hover:text-foreground transition-colors">
                     {tNav("services")}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/book" className="hover:text-foreground">
+                  <Link href="/book" className="hover:text-foreground font-medium text-primary transition-colors">
                     {tNav("book")}
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <p className="text-foreground font-medium">{tFooter("guardians")}</p>
-              <ul className="text-muted-foreground mt-2 space-y-2">
+              <p className="text-text-strong mb-2 text-xs font-semibold uppercase tracking-wider">
+                {tFooter("guardians")}
+              </p>
+              <ul className="text-muted-foreground space-y-1.5">
                 <li>
-                  <Link href="/guardians/apply" className="hover:text-foreground">
+                  <Link href="/guardians" className="hover:text-foreground transition-colors">
+                    {tNav("guardians")}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/guardians/apply" className="hover:text-foreground transition-colors">
                     {tFooter("apply")}
                   </Link>
                 </li>
                 <li>
-                  <NextLink href="/guardian/dashboard" className="hover:text-foreground">
+                  <NextLink href="/guardian/dashboard" className="hover:text-foreground transition-colors">
                     {tFooter("dashboard")}
                   </NextLink>
                 </li>
               </ul>
             </div>
-            <div>
-              <p className="text-foreground font-medium">{tFooter("operations")}</p>
-              <ul className="text-muted-foreground mt-2 space-y-2">
+            <div className="col-span-2 sm:col-span-1">
+              <p className="text-text-strong mb-2 text-xs font-semibold uppercase tracking-wider">
+                {tFooter("operations")}
+              </p>
+              <ul className="text-muted-foreground space-y-1.5">
                 <li>
-                  <NextLink href="/admin" className="hover:text-foreground">
+                  <NextLink href="/admin" className="hover:text-foreground transition-colors">
                     {tFooter("admin")}
                   </NextLink>
                 </li>
                 <li>
-                  <Link href="/login" className="hover:text-foreground">
+                  <Link href="/login" className="hover:text-foreground transition-colors">
                     {tHeader("logIn")}
                   </Link>
                 </li>
               </ul>
             </div>
-          </div>
+          </nav>
         </div>
-        <p className="text-muted-foreground mt-8 border-t pt-6 text-xs leading-relaxed">
-          {tFooter("disclaimer")}
-        </p>
       </div>
     </footer>
   );
