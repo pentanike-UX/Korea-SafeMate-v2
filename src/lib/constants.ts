@@ -52,6 +52,15 @@ export const NAV_MAIN = [
   { href: "/guardians/apply", label: "Contribute" },
 ] as const;
 
+/** Canonical entry paths for web now; mirror in a future app for the same flows (trust → first conversion → retention). */
+export const PRODUCT_ENTRY_ROUTES = {
+  book: "/book",
+  explore: "/explore",
+  services: "/services",
+  guardianApply: "/guardians/apply",
+  login: "/login",
+} as const;
+
 export const SERVICE_COPY: Record<
   ServiceTypeCode,
   { title: string; bullets: string[] }
