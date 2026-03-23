@@ -11,7 +11,7 @@ const icons = {
   first_24h: Sun,
 } as const;
 
-export default function HomePage() {
+export function HomePageContent() {
   return (
     <div>
       <section className="from-muted/40 via-background to-background relative overflow-hidden bg-gradient-to-b">

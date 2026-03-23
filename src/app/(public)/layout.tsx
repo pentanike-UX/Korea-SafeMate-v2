@@ -1,12 +1,5 @@
-import { SiteFooter } from "@/components/layout/site-footer";
-import { SiteHeader } from "@/components/layout/site-header";
+import { PublicSiteShell } from "@/components/layout/public-site-shell";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <SiteHeader />
-      <main className="flex-1">{children}</main>
-      <SiteFooter />
-    </>
-  );
+  return <PublicSiteShell>{children}</PublicSiteShell>;
 }
