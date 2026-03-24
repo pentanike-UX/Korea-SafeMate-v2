@@ -16,7 +16,7 @@ const fontMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: `${BRAND.name} · Local companion support in Seoul`,
+    default: `${BRAND.name} · K-culture journeys in Seoul`,
     template: `%s · ${BRAND.name}`,
   },
   description: BRAND.description,

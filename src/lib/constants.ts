@@ -1,10 +1,10 @@
 import type { ServiceTypeCode } from "@/types/domain";
 
 export const BRAND = {
-  name: "Korea SafeMate",
-  tagline: "Local intelligence · Guardian community · Safe support",
+  name: "42 Guardians",
+  tagline: "Local companions for K-culture journeys",
   description:
-    "Practical local information, a contributor guardian community with clear tiers, and ops-gated matching for on-the-ground support — not generic tourism marketing or a forum free-for-all.",
+    "42 Guardians connects international travelers with curated local guardians for K-drama, K-pop, and film-inspired Seoul experiences — trust through verification, languages, and traveler reviews.",
 } as const;
 
 export const PRODUCT_LAYERS = [

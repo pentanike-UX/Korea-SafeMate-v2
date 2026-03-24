@@ -35,6 +35,9 @@ export default async function LoginPage() {
           <Button asChild variant="outline" className="rounded-xl">
             <Link href="/book">{t("continueBooking")}</Link>
           </Button>
+          <Button asChild variant="outline" className="rounded-xl">
+            <Link href="/login/guardian">{t("guardianLoginLink")}</Link>
+          </Button>
           <Button asChild variant="ghost" className="rounded-xl">
             <NextLink href="/guardian/dashboard">{t("previewGuardian")}</NextLink>
           </Button>

@@ -262,6 +262,13 @@
       radial-gradient(circle at 45% 22%, rgba(255, 220, 180, 0.06) 0, transparent 2px);
     background-size: 100% 100%;
   }
+  /* 42 Guardians — bright startup hero */
+  .bg-hero-42 {
+    background:
+      radial-gradient(ellipse 100% 80% at 100% 0%, color-mix(in srgb, var(--brand-primary) 14%, transparent), transparent 50%),
+      radial-gradient(ellipse 80% 60% at 0% 20%, color-mix(in srgb, var(--brand-trust-blue) 12%, transparent), transparent 55%),
+      linear-gradient(180deg, #ffffff 0%, #faf8ff 38%, #f3f6ff 100%);
+  }
   .bg-cta-brand {
     background: var(--gradient-brand);
     box-shadow: var(--shadow-brand);

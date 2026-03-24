@@ -11,7 +11,7 @@ import {
 import { GuardianDashboardView } from "@/components/guardian/dashboard/guardian-dashboard-view";
 
 export const metadata = {
-  title: "Guardian dashboard | Korea SafeMate",
+  title: "Guardian dashboard | 42 Guardians",
 };
 
 const DEFAULT_PREVIEW_ID = "g1";

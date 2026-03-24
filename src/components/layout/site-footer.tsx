@@ -30,8 +30,23 @@ export async function SiteFooter() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/services" className="hover:text-foreground transition-colors">
-                    {tNav("services")}
+                  <Link href="/posts" className="hover:text-foreground transition-colors">
+                    {tNav("posts")}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/guardians" className="hover:text-foreground transition-colors">
+                    {tNav("guardians")}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/traveler" className="hover:text-foreground transition-colors">
+                    {tHeader("myJourney")}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" className="hover:text-foreground transition-colors">
+                    {tNav("about")}
                   </Link>
                 </li>
                 <li>
@@ -60,6 +75,11 @@ export async function SiteFooter() {
                   <NextLink href="/guardian/dashboard" className="hover:text-foreground transition-colors">
                     {tFooter("dashboard")}
                   </NextLink>
+                </li>
+                <li>
+                  <Link href="/login/guardian" className="hover:text-foreground transition-colors">
+                    {tFooter("guardianLogin")}
+                  </Link>
                 </li>
               </ul>
             </div>
