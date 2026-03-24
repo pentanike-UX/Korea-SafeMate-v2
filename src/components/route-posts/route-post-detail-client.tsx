@@ -1,11 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { ContentPost, RouteSpot } from "@/types/domain";
 import { RouteMapPreview } from "@/components/maps/route-map-preview";
+import { RouteStickyLocalNav } from "@/components/route-posts/route-sticky-local-nav";
 import { RouteSummaryChips } from "@/components/route-posts/route-summary-chips";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -79,10 +80,15 @@ export function RoutePostDetailClient({ post }: { post: ContentPost }) {
   const journey = post.route_journey!;
   const meta = journey.metadata;
   const spots = useMemo(() => [...journey.spots].sort((a, b) => a.order - b.order), [journey.spots]);
-  const [selectedId, setSelectedId] = useState<string | null>(spots[0]?.id ?? null);
+
+  const mapCardRef = useRef<HTMLDivElement>(null);
+  const spotsEndRef = useRef<HTMLDivElement>(null);
+
+  const [activeSpotId, setActiveSpotId] = useState<string | null>(spots[0]?.id ?? null);
   const [flashId, setFlashId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [showStickyNav, setShowStickyNav] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 1023px)");
@@ -92,16 +98,24 @@ export function RoutePostDetailClient({ post }: { post: ContentPost }) {
     return () => mq.removeEventListener("change", fn);
   }, []);
 
-  const selectedSpot = spots.find((s) => s.id === selectedId) ?? null;
+  const navigateToSpotSection = useCallback((id: string) => {
+    setActiveSpotId(id);
+    document.getElementById(`route-spot-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setFlashId(id);
+    window.setTimeout(() => setFlashId(null), 2200);
+  }, []);
 
-  function focusSpot(id: string) {
-    setSelectedId(id);
+  const scrollToMainMap = useCallback(() => {
+    mapCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  /** Main hero map: mobile opens sheet; desktop scrolls to section. */
+  function onMainMapSpotSelect(id: string) {
+    setActiveSpotId(id);
     if (isMobile) {
       setSheetOpen(true);
     } else {
-      document.getElementById(`route-spot-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-      setFlashId(id);
-      window.setTimeout(() => setFlashId(null), 2200);
+      navigateToSpotSection(id);
     }
   }
 
@@ -109,11 +123,52 @@ export function RoutePostDetailClient({ post }: { post: ContentPost }) {
     const idx = spots.findIndex((s) => s.id === id);
     const next = spots[idx + 1];
     if (!next) return;
-    focusSpot(next.id);
-    if (isMobile) {
-      setSelectedId(next.id);
-    }
+    navigateToSpotSection(next.id);
+    if (isMobile) setSheetOpen(true);
   }
+
+  useEffect(() => {
+    let raf = 0;
+    const tick = () => {
+      const mapEl = mapCardRef.current;
+      const endEl = spotsEndRef.current;
+      if (!mapEl || !endEl) return;
+
+      const mapBottom = mapEl.getBoundingClientRect().bottom;
+      const endTop = endEl.getBoundingClientRect().top;
+      const stickyOn = mapBottom < 0 && endTop > 0;
+      setShowStickyNav((prev) => (prev === stickyOn ? prev : stickyOn));
+
+      const headerH = window.innerWidth >= 640 ? 64 : 56;
+      const stickyH = stickyOn ? (isMobile ? 56 : 64) : 0;
+      const probeY = headerH + stickyH + 20;
+
+      let nextActive: string | null = spots[0]?.id ?? null;
+      for (const spot of spots) {
+        const el = document.getElementById(`route-spot-${spot.id}`);
+        if (!el) continue;
+        const top = el.getBoundingClientRect().top;
+        if (top <= probeY) nextActive = spot.id;
+      }
+      setActiveSpotId((prev) => (prev === nextActive ? prev : nextActive));
+    };
+
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    tick();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [spots, isMobile]);
+
+  const selectedSpot = spots.find((s) => s.id === activeSpotId) ?? null;
 
   const cover = postCoverImageUrl(post);
   const date = new Date(post.created_at).toLocaleDateString(undefined, {
@@ -124,6 +179,17 @@ export function RoutePostDetailClient({ post }: { post: ContentPost }) {
 
   return (
     <>
+      {showStickyNav && spots.length > 0 ? (
+        <RouteStickyLocalNav
+          post={post}
+          spots={spots}
+          activeSpotId={activeSpotId}
+          onSpotNavigate={(id) => navigateToSpotSection(id)}
+          onScrollToMainMap={scrollToMainMap}
+          isMobile={isMobile}
+        />
+      ) : null}
+
       <header className="relative overflow-hidden rounded-[1.75rem] border border-border/60 shadow-[var(--shadow-md)]">
         <div className="relative aspect-[21/11] max-h-[340px] min-h-[200px] sm:aspect-[3/1]">
           {cover ? (
@@ -163,7 +229,7 @@ export function RoutePostDetailClient({ post }: { post: ContentPost }) {
       </header>
 
       <div className="mt-8 space-y-4">
-        <Card className="overflow-hidden rounded-2xl border-border/60 py-0 shadow-[var(--shadow-md)]">
+        <Card ref={mapCardRef} className="overflow-hidden rounded-2xl border-border/60 py-0 shadow-[var(--shadow-md)]">
           <div className="border-border/50 flex items-center justify-between border-b bg-white/90 px-5 py-4">
             <div>
               <p className="text-primary text-[10px] font-bold tracking-widest uppercase">{t("routeEyebrow")}</p>
@@ -177,8 +243,8 @@ export function RoutePostDetailClient({ post }: { post: ContentPost }) {
             <RouteMapPreview
               spots={journey.spots}
               path={journey.path}
-              selectedSpotId={selectedId}
-              onSpotSelect={(id) => focusSpot(id)}
+              selectedSpotId={activeSpotId}
+              onSpotSelect={onMainMapSpotSelect}
               className="h-full"
             />
           </div>
@@ -217,12 +283,21 @@ export function RoutePostDetailClient({ post }: { post: ContentPost }) {
               key={spot.id}
               id={`route-spot-${spot.id}`}
               className={cn(
-                "scroll-mt-28 rounded-2xl border border-border/60 bg-white/95 p-5 shadow-[var(--shadow-sm)] transition-[box-shadow] sm:p-7",
+                "rounded-2xl border border-border/60 bg-white/95 p-5 shadow-[var(--shadow-sm)] transition-[box-shadow] sm:p-7",
+                showStickyNav ? "scroll-mt-36 sm:scroll-mt-40" : "scroll-mt-28",
                 flashId === spot.id ? "ring-primary ring-2 ring-offset-2" : "",
+                activeSpotId === spot.id && showStickyNav ? "border-primary/25" : "",
               )}
             >
               <div className="flex items-start gap-3">
-                <span className="bg-primary text-primary-foreground flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold">
+                <span
+                  className={cn(
+                    "flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold",
+                    activeSpotId === spot.id && showStickyNav
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-primary/12 text-primary",
+                  )}
+                >
                   {index + 1}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -233,7 +308,7 @@ export function RoutePostDetailClient({ post }: { post: ContentPost }) {
                     variant="link"
                     className="text-primary mt-2 h-auto p-0 text-sm font-semibold lg:hidden"
                     onClick={() => {
-                      setSelectedId(spot.id);
+                      setActiveSpotId(spot.id);
                       setSheetOpen(true);
                     }}
                   >
@@ -252,6 +327,8 @@ export function RoutePostDetailClient({ post }: { post: ContentPost }) {
         })}
       </section>
 
+      <div ref={spotsEndRef} aria-hidden className="h-px w-full" />
+
       <div className="border-border/50 mt-12 rounded-2xl border bg-gradient-to-br from-[var(--brand-primary-soft)] to-white p-8 text-center shadow-[var(--shadow-sm)]">
         <p className="text-text-strong text-lg font-semibold">{t("bottomCtaTitle")}</p>
         <p className="text-muted-foreground mx-auto mt-2 max-w-md text-sm leading-relaxed">{t("bottomCtaLead")}</p>
@@ -265,9 +342,7 @@ export function RoutePostDetailClient({ post }: { post: ContentPost }) {
           {selectedSpot ? (
             <>
               <SheetHeader className="px-0 text-left">
-                <SheetTitle className="text-left text-base">
-                  {selectedSpot.title}
-                </SheetTitle>
+                <SheetTitle className="text-left text-base">{selectedSpot.title}</SheetTitle>
               </SheetHeader>
               <div className="mt-2 max-h-[calc(88vh-5rem)] overflow-y-auto pr-1">
                 <SpotDetailBody

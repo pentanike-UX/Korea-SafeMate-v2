@@ -615,7 +615,14 @@
     "formatArticle": "記事",
     "cardSpots": "スポット{count}か所",
     "ctaViewRoute": "ルートを見る",
-    "ctaChooseGuardian": "このGuardianを選ぶ"
+    "ctaChooseGuardian": "このGuardianを選ぶ",
+    "stickyNavAria": "ルート内ナビゲーション",
+    "stickyNavSpotsAria": "スポット一覧",
+    "stickyNavFullMap": "全体マップ",
+    "stickyNavExpand": "スポット一覧を広げる",
+    "stickyNavCollapse": "スポット一覧を閉じる",
+    "stickyNavCollapsedHint": "ミニマップのピンでスポットに移動できます。",
+    "stickyNavOpenMapSheet": "ルートマップを開く"
   },
   "TravelerHub": {
     "metaTitle": "マイジャーニー",

@@ -615,7 +615,14 @@
     "formatArticle": "Article",
     "cardSpots": "{count} stops",
     "ctaViewRoute": "View route",
-    "ctaChooseGuardian": "Choose this guardian"
+    "ctaChooseGuardian": "Choose this guardian",
+    "stickyNavAria": "Route local navigation",
+    "stickyNavSpotsAria": "Stops on this route",
+    "stickyNavFullMap": "Full map",
+    "stickyNavExpand": "Expand stop list",
+    "stickyNavCollapse": "Collapse stop list",
+    "stickyNavCollapsedHint": "Tap a pin on the mini map to jump to a stop.",
+    "stickyNavOpenMapSheet": "Open route map"
   },
   "TravelerHub": {
     "metaTitle": "My journey",

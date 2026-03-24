@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { mockSeoulSearchPlaces } from "@/data/mock/guardian-mock-places";
 import { cn } from "@/lib/utils";
-import { ArrowDown, ArrowUp, Copy, Loader2, MapPin, Plus, Star, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, ChevronUp, Copy, Loader2, MapPin, Star, Trash2 } from "lucide-react";
 
 function buildSavePayload(p: ContentPost, status: ContentPost["status"]): GuardianPostSavePayload | null {
   if (!p.route_journey) return null;
@@ -90,16 +90,23 @@ const COPY = {
   travelerTypes: "추천 여행자 유형 (쉼표로 구분)",
   night: "야간 친화",
   spotEditorTitle: "스팟별 내용을 채워주세요",
-  addSpot: "스팟 추가",
-  mapAdd: "지도에서 직접 선택",
+  addSpotFromMap: "지도에서 스팟 추가",
+  mapAdd: "지도에서 찍기",
+  mapPickBanner: "지도의 빈 곳을 탭하면 새 스팟이 추가됩니다.",
+  spotAddHint: "장소 검색 또는 「지도에서 찍기」로 스팟을 추가하세요.",
   searchPlaceholder: "장소 검색 (목업)",
+  selectedLocation: "선택된 위치",
+  locationPinned: "지도에 핀이 표시되어 있습니다. 검색 또는 지도 탭으로 위치를 바꿀 수 있어요.",
+  locationNeed: "장소 검색 또는 지도에서 위치를 먼저 지정해 주세요.",
+  advancedCoords: "고급: 위도·경도 직접 입력",
+  advancedCoordsHide: "좌표 입력 접기",
   publish: "게시하기",
   saveDraft: "초안 저장",
   preview: "미리보기",
   savedDraft: "초안으로 저장했습니다.",
   back: "목록으로",
   mapPanelTitle: "이 가디언의 추천 여행경로",
-  mapPanelHint: "핀을 눌러 선택 · 빈 곳을 눌러 스팟 좌표 추가(목업)",
+  mapPanelHint: "핀을 눌러 스팟 선택 · 「지도에서 찍기」일 때 빈 곳을 탭하면 스팟이 추가됩니다.",
   routeOsrm: "OSRM으로 경로 계산",
   routeOsrmHint: "도보/차량 기준 실제 도로 형상(데모 서버). 운영 시 OSRM_BASE_URL을 자체 인스턴스로 교체하세요.",
   saving: "저장 중…",
@@ -127,6 +134,7 @@ export function GuardianRoutePostEditor({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const [previewBusy, setPreviewBusy] = useState(false);
+  const [showAdvancedCoords, setShowAdvancedCoords] = useState(false);
 
   const filteredPlaces = useMemo(() => {
     const s = searchQ.trim().toLowerCase();
@@ -156,9 +164,13 @@ export function GuardianRoutePostEditor({
     });
   }
 
-  function addSpotAt(lat: number, lng: number, placeName = "") {
+  function addSpotAt(lat: number, lng: number, placeName = "", fromMap = false) {
     const spot = newSpot(journey.spots.length, lat, lng);
-    if (placeName) spot.place_name = placeName;
+    if (placeName) {
+      spot.place_name = placeName;
+    } else if (fromMap) {
+      spot.place_name = "지도에서 선택한 위치";
+    }
     commitJourney({ ...journey, spots: [...journey.spots, spot] });
     setSelectedSpotId(spot.id);
   }
@@ -533,11 +545,7 @@ export function GuardianRoutePostEditor({
         <section className="space-y-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <h2 className="text-foreground text-sm font-semibold">{COPY.spotEditorTitle}</h2>
-            <div className="flex flex-wrap gap-2">
-              <Button type="button" size="sm" variant="outline" className="rounded-xl gap-1" onClick={() => addSpotAt(37.5665, 126.982)}>
-                <Plus className="size-4" />
-                {COPY.addSpot}
-              </Button>
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 type="button"
                 size="sm"
@@ -549,6 +557,11 @@ export function GuardianRoutePostEditor({
                 {COPY.mapAdd}
               </Button>
             </div>
+            {mapPick ? (
+              <p className="text-primary text-xs font-medium">{COPY.mapPickBanner}</p>
+            ) : (
+              <p className="text-muted-foreground text-xs">{COPY.spotAddHint}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -612,6 +625,15 @@ export function GuardianRoutePostEditor({
           {selectedSpot ? (
             <div className="border-border/60 space-y-3 rounded-2xl border bg-white/95 p-4">
               <p className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">선택된 스팟</p>
+              <div className="border-border/50 space-y-1 rounded-xl border bg-muted/15 p-3">
+                <p className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">{COPY.selectedLocation}</p>
+                <p className="text-foreground text-sm font-semibold">
+                  {selectedSpot.place_name?.trim() || selectedSpot.title?.trim() || "—"}
+                </p>
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  {selectedSpot.lat != null && selectedSpot.lng != null ? COPY.locationPinned : COPY.locationNeed}
+                </p>
+              </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1 sm:col-span-2">
                   <Label>스팟 제목</Label>
@@ -687,25 +709,41 @@ export function GuardianRoutePostEditor({
                     className="rounded-xl"
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label>위도</Label>
-                  <Input
-                    type="number"
-                    step="0.0001"
-                    value={selectedSpot.lat}
-                    onChange={(e) => updateSpot(selectedSpot.id, { lat: Number(e.target.value) })}
-                    className="rounded-xl font-mono text-xs"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label>경도</Label>
-                  <Input
-                    type="number"
-                    step="0.0001"
-                    value={selectedSpot.lng}
-                    onChange={(e) => updateSpot(selectedSpot.id, { lng: Number(e.target.value) })}
-                    className="rounded-xl font-mono text-xs"
-                  />
+                <div className="space-y-2 sm:col-span-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground h-8 gap-1 px-0 text-xs font-medium hover:bg-transparent"
+                    onClick={() => setShowAdvancedCoords((v) => !v)}
+                  >
+                    {showAdvancedCoords ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+                    {showAdvancedCoords ? COPY.advancedCoordsHide : COPY.advancedCoords}
+                  </Button>
+                  {showAdvancedCoords ? (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-1">
+                        <Label>위도</Label>
+                        <Input
+                          type="number"
+                          step="0.0001"
+                          value={selectedSpot.lat}
+                          onChange={(e) => updateSpot(selectedSpot.id, { lat: Number(e.target.value) })}
+                          className="rounded-xl font-mono text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>경도</Label>
+                        <Input
+                          type="number"
+                          step="0.0001"
+                          value={selectedSpot.lng}
+                          onChange={(e) => updateSpot(selectedSpot.id, { lng: Number(e.target.value) })}
+                          className="rounded-xl font-mono text-xs"
+                        />
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -814,7 +852,7 @@ export function GuardianRoutePostEditor({
             selectedSpotId={selectedSpotId}
             onSpotSelect={(id) => setSelectedSpotId(id)}
             mapClickEnabled={mapPick}
-            onMapClick={(lat, lng) => addSpotAt(lat, lng)}
+            onMapClick={(lat, lng) => addSpotAt(lat, lng, "", true)}
             className="h-full min-h-[280px]"
           />
         </div>
