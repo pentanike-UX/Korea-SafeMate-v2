@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrustBadgesServer } from "@/components/forty-two/trust-badges-server";
-import { ArrowRight, ChevronRight, MapPin, Sparkles, Star } from "lucide-react";
+import { ArrowRight, ChevronRight, Compass, MapPin, Sparkles, Star, Users } from "lucide-react";
 import { guardianTierBadgeVariant } from "@/lib/guardian-tier-ui";
 import type { GuardianTier } from "@/types/domain";
 
@@ -69,14 +69,27 @@ export async function HomeFortyTwoPage() {
             </h1>
             <p className="text-muted-foreground mt-4 max-w-lg text-[15px] leading-relaxed">{t("heroLead")}</p>
             <p className="text-muted-foreground mt-2 text-sm font-medium">{tBrand("tagline")}</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button asChild size="lg" className="rounded-2xl px-8 shadow-[var(--shadow-brand)]">
-                <Link href="/guardians">{t("ctaPrimaryRequest")}</Link>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-nowrap sm:items-stretch sm:gap-4">
+              <Button
+                asChild
+                size="lg"
+                className="h-auto min-h-12 w-full gap-2.5 rounded-2xl px-8 py-3.5 text-base font-semibold shadow-[var(--shadow-brand)] sm:w-auto"
+              >
+                <Link href="/guardians" className="gap-2.5">
+                  <Users className="size-5 shrink-0" aria-hidden />
+                  {t("ctaPrimaryRequest")}
+                </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-2xl border-border/80 bg-white/80">
-                <Link href="/explore">
-                  {t("ctaSecondaryExplore")}
-                  <ArrowRight className="size-4" />
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-primary/25 h-auto min-h-12 w-full gap-2.5 rounded-2xl border-2 bg-white/90 px-8 py-3.5 text-base font-semibold shadow-sm backdrop-blur-sm sm:w-auto hover:bg-white"
+              >
+                <Link href="/explore" className="gap-2 whitespace-nowrap">
+                  <Compass className="size-5 shrink-0 text-primary" aria-hidden />
+                  <span>{t("ctaSecondaryExplore")}</span>
+                  <ArrowRight className="size-5 shrink-0 text-primary" aria-hidden />
                 </Link>
               </Button>
             </div>
