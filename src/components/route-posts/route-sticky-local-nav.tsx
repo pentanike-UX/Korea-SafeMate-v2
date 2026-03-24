@@ -48,8 +48,8 @@ export function RouteStickyLocalNav({ spots, activeSpotId, onSpotNavigate, onScr
       active
         ? "border-primary bg-primary text-primary-foreground shadow-sm"
         : mobile
-          ? "border-border/70 bg-white/95 text-foreground"
-          : "border-border/70 bg-white/90 text-foreground hover:border-primary/35 hover:bg-primary/5",
+          ? "border-border/70 bg-card/95 text-foreground backdrop-blur-sm"
+          : "border-border/70 bg-card/90 text-foreground backdrop-blur-sm hover:border-primary/35 hover:bg-primary/5",
     );
 
   const renderChips = (mobile: boolean) => (
@@ -107,7 +107,7 @@ export function RouteStickyLocalNav({ spots, activeSpotId, onSpotNavigate, onScr
           type="button"
           variant="outline"
           size="icon"
-          className="size-9 shrink-0 rounded-xl border-border/70 bg-white/90 shadow-sm"
+          className="size-9 shrink-0 rounded-xl border-border/70 bg-card/90 shadow-sm backdrop-blur-sm"
           onClick={onScrollToMainMap}
           aria-label={t("stickyNavMapButtonAria")}
         >

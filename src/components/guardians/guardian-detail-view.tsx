@@ -40,12 +40,13 @@ export async function GuardianDetailView({ guardian: g }: { guardian: PublicGuar
 
       <div className="relative">
         <div className="relative mx-auto max-w-6xl px-4 pt-6 sm:px-6">
-          <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2 gap-1 text-muted-foreground">
-            <Link href="/guardians">
-              <ArrowLeft className="size-4" />
-              {t("backToList")}
-            </Link>
-          </Button>
+          <Link
+            href="/guardians"
+            className="group/back text-muted-foreground hover:text-foreground mb-4 -ml-2 inline-flex items-center gap-1.5 border-b-2 border-transparent pb-0.5 text-sm font-medium transition-all duration-200 hover:border-border/70 hover:gap-2"
+          >
+            <ArrowLeft className="size-4 shrink-0 transition-transform duration-200 group-hover/back:-translate-x-0.5" aria-hidden />
+            {t("backToList")}
+          </Link>
         </div>
 
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
@@ -169,7 +170,7 @@ export async function GuardianDetailView({ guardian: g }: { guardian: PublicGuar
             <ul className="mt-4 space-y-3">
               {g.recommended_routes.map((r, i) => (
                 <li key={i}>
-                  <Card className="border-border/60 rounded-2xl border bg-white/80 shadow-none">
+                  <Card className="border-border/60 rounded-2xl border bg-card/90 shadow-none">
                     <CardContent className="p-4 sm:p-5">
                       <p className="font-semibold">{isKo ? r.title.ko : r.title.en}</p>
                       <p className="text-muted-foreground mt-2 text-sm">{isKo ? r.blurb.ko : r.blurb.en}</p>

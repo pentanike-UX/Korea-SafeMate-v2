@@ -4,7 +4,6 @@ import { Link } from "@/i18n/navigation";
 import type { ContentPost } from "@/types/domain";
 import { relatedPostsFor } from "@/lib/posts-public";
 import { postHasRouteJourney } from "@/lib/content-post-route";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PostAuthorAside } from "@/components/posts/post-author-aside";
 import { RoutePostDetailView } from "@/components/posts/route-post-detail-view";
@@ -32,12 +31,13 @@ export async function PostDetailView({ post }: { post: ContentPost }) {
   return (
     <article className="bg-[var(--bg-page)] pb-16">
       <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
-        <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2 gap-1 text-muted-foreground">
-          <Link href="/posts">
-            <ArrowLeft className="size-4" />
-            {t("backToList")}
-          </Link>
-        </Button>
+        <Link
+          href="/posts"
+          className="group/back text-muted-foreground hover:text-foreground mb-4 -ml-2 inline-flex items-center gap-1.5 border-b-2 border-transparent pb-0.5 text-sm font-medium transition-all duration-200 hover:border-border/70 hover:gap-2"
+        >
+          <ArrowLeft className="size-4 shrink-0 transition-transform duration-200 group-hover/back:-translate-x-0.5" aria-hidden />
+          {t("backToList")}
+        </Link>
       </div>
 
       <header className="relative mx-auto max-w-6xl px-4 sm:px-6">
@@ -103,7 +103,7 @@ export async function PostDetailView({ post }: { post: ContentPost }) {
       </div>
 
       {related.length > 0 ? (
-        <section className="border-border/50 border-t bg-white/80">
+        <section className="border-border/50 border-t bg-card/90">
           <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
             <h2 className="text-text-strong text-xl font-semibold">{t("relatedTitle")}</h2>
             <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

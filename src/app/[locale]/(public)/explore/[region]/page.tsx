@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
 import {
   mockContentCategories,
@@ -16,6 +15,7 @@ import { ExploreRegionHero } from "@/components/explore/explore-region-hero";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BRAND } from "@/lib/constants";
+import { InlineTextLink } from "@/components/ui/text-action";
 
 type Props = { params: Promise<{ locale: string; region: string }> };
 
@@ -98,9 +98,9 @@ export default async function ExploreRegionPage({ params }: Props) {
       ) : null}
 
       <div className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
-        <Link href="/explore" className="text-primary text-sm font-medium hover:underline">
+        <InlineTextLink href="/explore" className="text-sm">
           {t("allRegions")}
-        </Link>
+        </InlineTextLink>
       </div>
     </>
   );

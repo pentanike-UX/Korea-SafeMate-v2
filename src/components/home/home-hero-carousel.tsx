@@ -47,6 +47,7 @@ export function HomeHeroCarousel() {
 
   return (
     <section
+      id="home-hero-root"
       className="relative isolate -mt-14 min-h-[min(100dvh,56rem)] overflow-hidden pt-14 sm:-mt-16 sm:min-h-[min(100dvh,60rem)] sm:pt-16"
       aria-label={t("heroCarouselAria")}
       onMouseEnter={() => setPaused(true)}

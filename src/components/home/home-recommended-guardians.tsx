@@ -11,8 +11,9 @@ import type { PublicGuardian } from "@/lib/guardian-public";
 import { guardianTierBadgeVariant } from "@/lib/guardian-tier-ui";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { TextActionLink } from "@/components/ui/text-action";
 import { TrustBadgeRow } from "@/components/forty-two/trust-badges";
-import { ChevronRight, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { useHomeExplorePreferences } from "@/components/home/home-explore-preferences";
 import type { ContentPost, GuardianTier } from "@/types/domain";
 
@@ -63,7 +64,7 @@ export function HomeRecommendedGuardiansSection() {
   }
 
   return (
-    <section className="border-border/35 border-t bg-white">
+    <section className="border-border/35 border-t bg-card">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
         <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-2xl">
@@ -74,12 +75,9 @@ export function HomeRecommendedGuardiansSection() {
               {t("featuredGuardiansSectionLead")}
             </p>
           </div>
-          <Button asChild variant="ghost" className="text-primary h-auto shrink-0 self-start px-0 font-semibold hover:bg-transparent">
-            <Link href={moreHref} className="inline-flex items-center gap-0.5">
-              {t("recommendedGuardiansViewAll")}
-              <ChevronRight className="size-4" aria-hidden />
-            </Link>
-          </Button>
+          <TextActionLink href={moreHref} className="shrink-0 self-start text-sm sm:text-[15px]">
+            {t("recommendedGuardiansViewAll")}
+          </TextActionLink>
         </div>
 
         <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
@@ -137,7 +135,7 @@ export function HomeRecommendedGuardiansSection() {
                         </p>
                         <Link
                           href={`/posts/${rep.post.id}`}
-                          className="text-foreground mt-1 block text-sm font-medium leading-snug hover:text-primary"
+                          className="text-foreground mt-1 block text-sm font-medium leading-snug underline decoration-[color-mix(in_srgb,var(--brand-primary)_30%,transparent)] decoration-2 underline-offset-[3px] transition-colors hover:decoration-[var(--brand-primary)] hover:text-[var(--brand-primary)]"
                         >
                           {rep.post.title}
                         </Link>
@@ -166,9 +164,9 @@ export function HomeRecommendedGuardiansSection() {
         </div>
 
         <div className="mt-10 flex justify-center">
-          <Button asChild variant="outline" size="lg" className="rounded-2xl border-2 px-8 font-semibold">
-            <Link href={moreHref}>{t("recommendedGuardiansMoreCta")}</Link>
-          </Button>
+          <TextActionLink href={moreHref} className="text-base">
+            {t("recommendedGuardiansMoreCta")}
+          </TextActionLink>
         </div>
       </div>
     </section>

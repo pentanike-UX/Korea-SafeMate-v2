@@ -106,7 +106,7 @@ export function GuardiansDiscoverClient() {
 
   return (
     <div className="bg-[var(--bg-page)]">
-      <section className="relative overflow-hidden border-b border-border/60 bg-white">
+      <section className="relative overflow-hidden border-b border-border/60 bg-card">
         <div className="absolute inset-0 bg-hero-42 opacity-90" />
         <div className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-18">
           <h1 className="text-text-strong max-w-3xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">

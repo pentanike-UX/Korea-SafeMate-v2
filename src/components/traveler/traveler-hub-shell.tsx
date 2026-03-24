@@ -19,7 +19,7 @@ export function TravelerHubShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="bg-[var(--bg-page)] min-h-screen">
-      <div className="border-border/60 border-b bg-white/95 backdrop-blur-sm">
+      <div className="border-border/60 border-b bg-card/95 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
           <p className="text-primary text-[11px] font-semibold tracking-[0.2em] uppercase">42 Guardians</p>
           <h1 className="text-text-strong mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">{t("hubTitle")}</h1>

@@ -59,7 +59,7 @@ export function RoutePostCard({ post, regionLabel, className }: { post: ContentP
               </Badge>
             ) : null}
             {post.featured ? (
-              <Badge className="rounded-full bg-white/95 text-[10px] font-semibold text-foreground shadow-sm">{tPosts("featured")}</Badge>
+              <Badge className="rounded-full bg-card/95 text-[10px] font-semibold text-foreground shadow-sm backdrop-blur-sm">{tPosts("featured")}</Badge>
             ) : null}
           </div>
           <div className="absolute right-3 bottom-3 left-3 z-10">

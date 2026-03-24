@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { BRAND } from "@/lib/constants";
+import { ThemeProvider } from "@/components/theme/theme-provider";
+
+const themeInitScript = `(function(){try{var k='42-guardians-color-mode';var s=localStorage.getItem(k);var d=s==='dark'||(s!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}})();`;
 
 const fontSans = Plus_Jakarta_Sans({
   variable: "--font-sans-next",
@@ -31,9 +34,14 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${fontSans.variable} ${fontMono.variable} h-full antialiased`}
+      className={`${fontSans.variable} ${fontMono.variable} h-full antialiased transition-[background-color,color] duration-300 ease-out`}
     >
-      <body className="bg-background text-foreground min-h-full flex flex-col">{children}</body>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body className="bg-background text-foreground flex min-h-full flex-col transition-colors duration-300 ease-out">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

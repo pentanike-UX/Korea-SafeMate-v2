@@ -22,7 +22,7 @@ export function LanguageSwitcher({
   return (
     <div
       className={cn(
-        "flex items-center gap-0.5 rounded-lg border p-0.5",
+        "flex items-center gap-0.5 rounded-lg border p-0.5 transition-[border-color,background-color] duration-300 ease-out",
         onDark
           ? "border-white/20 bg-white/10 backdrop-blur-sm"
           : "border-border/70 bg-[color-mix(in_srgb,var(--brand-primary-soft)_45%,var(--bg-surface-subtle))]",
@@ -37,7 +37,7 @@ export function LanguageSwitcher({
           type="button"
           onClick={() => router.replace(pathname, { locale: code })}
           className={cn(
-            "rounded-md px-2 py-1 text-[11px] font-semibold tracking-wide transition-colors",
+            "rounded-md px-2 py-1 text-[11px] font-semibold tracking-wide transition-[color,background-color,box-shadow] duration-200",
             locale === code
               ? onDark
                 ? "bg-white text-[var(--brand-primary)] shadow-sm ring-1 ring-white/40"

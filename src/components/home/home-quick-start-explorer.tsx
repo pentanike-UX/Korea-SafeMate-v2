@@ -98,7 +98,7 @@ export function HomeQuickStartExplorer() {
   }
 
   return (
-    <section className="border-border/40 border-b bg-[#f7f8fb]">
+    <section className="border-border/40 border-b bg-[var(--bg-quick-start)]">
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-18">
         <div className="mb-10 max-w-2xl">
           <p className="text-primary text-[11px] font-semibold tracking-[0.2em] uppercase">{t("eyebrow")}</p>
@@ -220,7 +220,7 @@ export function HomeQuickStartExplorer() {
                     "group border-border/70 bg-card text-left transition-all",
                     "relative flex flex-col overflow-hidden rounded-2xl border shadow-[var(--shadow-sm)]",
                     "hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]",
-                    selected && "ring-primary ring-[3px] ring-offset-2 ring-offset-[#f7f8fb]",
+                    selected && "ring-primary ring-[3px] ring-offset-2 ring-offset-[var(--ring-offset-surface)]",
                   )}
                 >
                   {media}
@@ -251,7 +251,7 @@ export function HomeQuickStartExplorer() {
                     "border-border/70 bg-card rounded-2xl border border-l-[3px] p-5 text-left shadow-[var(--shadow-sm)] transition-all",
                     MOOD_ACCENT_BORDER[slug],
                     "hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]",
-                    selected && "ring-primary ring-[3px] ring-offset-2 ring-offset-[#f7f8fb]",
+                    selected && "ring-primary ring-[3px] ring-offset-2 ring-offset-[var(--ring-offset-surface)]",
                   )}
                 >
                   <div className="flex gap-4">
@@ -303,7 +303,7 @@ export function HomeQuickStartExplorer() {
                     {area ? (
                       <Badge
                         variant="secondary"
-                        className="rounded-full border border-border/60 bg-white px-3 py-1.5 text-sm font-medium"
+                        className="rounded-full border border-border/60 bg-card px-3 py-1.5 text-sm font-medium"
                       >
                         {regionLabel(area)}
                       </Badge>
@@ -311,7 +311,7 @@ export function HomeQuickStartExplorer() {
                     {theme ? (
                       <Badge
                         variant="secondary"
-                        className="rounded-full border border-border/60 bg-white px-3 py-1.5 text-sm font-medium"
+                        className="rounded-full border border-border/60 bg-card px-3 py-1.5 text-sm font-medium"
                       >
                         {themeTitle(theme as MoodSlug)}
                       </Badge>

@@ -84,7 +84,7 @@ export function PostsListClient({
 
   return (
     <div className="bg-[var(--bg-page)] min-h-screen">
-      <section className="relative overflow-hidden border-b border-border/60 bg-white">
+      <section className="relative overflow-hidden border-b border-border/60 bg-card">
         <div className="absolute inset-0 bg-hero-42 opacity-95" />
         <div className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-18">
           <p className="text-primary inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.2em] uppercase">
@@ -220,7 +220,7 @@ export function PostsListClient({
                       <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-[#0e1b3d]/45 to-transparent" />
                       {p.featured ? (
                         <div className="absolute top-3 left-3 z-10">
-                          <Badge className="rounded-full bg-white/95 text-[10px] font-semibold text-[var(--brand-primary)] shadow-sm">
+                          <Badge className="rounded-full bg-card/95 text-[10px] font-semibold text-[var(--brand-primary)] shadow-sm backdrop-blur-sm">
                             {t("featured")}
                           </Badge>
                         </div>

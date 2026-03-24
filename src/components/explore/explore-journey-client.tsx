@@ -11,11 +11,21 @@ import type { ContentPost } from "@/types/domain";
 import type { LaunchAreaSlug } from "@/types/launch-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { TrustBadgeRow } from "@/components/forty-two/trust-badges";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, ArrowRight, Check, Sparkles } from "lucide-react";
-import { guardianTierBadgeVariant } from "@/lib/guardian-tier-ui";
+import {
+  companionSlugsForStyle,
+  sceneMoodToTasteIds,
+  type GuardianStyleId,
+  type PartySize,
+  type SceneMoodId,
+  type TripWhenPreset,
+} from "@/components/explore/explore-journey-data";
+import {
+  ExploreResultsDashboard,
+  ExploreTasteBuilderStep,
+  ExploreTripSetupStep,
+} from "@/components/explore/explore-journey-step-panels";
 
 const STEPS = 5;
 
@@ -27,7 +37,6 @@ export function ExploreJourneyClient() {
   const tLaunch = useTranslations("LaunchAreas");
   const tThemes = useTranslations("ExperienceThemes");
   const tG = useTranslations("GuardiansDiscover");
-  const tTier = useTranslations("GuardianTier");
   const locale = useLocale();
   const isKo = locale === "ko";
   const searchParams = useSearchParams();
@@ -36,10 +45,21 @@ export function ExploreJourneyClient() {
   const [region, setRegion] = useState<LaunchAreaSlug | "">("");
   const [theme, setTheme] = useState<string>("");
   const [enteredExploreViaPreset, setEnteredExploreViaPreset] = useState(false);
+
   const [days, setDays] = useState<string>("1");
   const [langPref, setLangPref] = useState<LangPref>("any");
   const [pace, setPace] = useState<Pace>("balanced");
-  const [tastes, setTastes] = useState<string[]>([]);
+  const [tripWhenPreset, setTripWhenPreset] = useState<TripWhenPreset | null>(null);
+  const [tripCustomDate, setTripCustomDate] = useState("");
+  const [partySize, setPartySize] = useState<PartySize>("solo");
+
+  const [workQuery, setWorkQuery] = useState("");
+  const [workTokens, setWorkTokens] = useState<string[]>([]);
+  const [artistQuery, setArtistQuery] = useState("");
+  const [artistTokens, setArtistTokens] = useState<string[]>([]);
+  const [sceneMoods, setSceneMoods] = useState<SceneMoodId[]>([]);
+  const [guardianStylePrefs, setGuardianStylePrefs] = useState<GuardianStyleId[]>([]);
+
   const [resultsSpin, setResultsSpin] = useState(0);
 
   useEffect(() => {
@@ -61,6 +81,12 @@ export function ExploreJourneyClient() {
 
   const comingSoonArea = region === "busan" || region === "jeju";
 
+  const effectiveTasteIds = useMemo(() => {
+    const s = new Set<string>();
+    sceneMoods.forEach((m) => sceneMoodToTasteIds(m).forEach((id) => s.add(id)));
+    return [...s];
+  }, [sceneMoods]);
+
   const results = useMemo(() => {
     if (!region || comingSoonArea) return { guardians: [] as PublicGuardian[], posts: [] as ContentPost[] };
     const pool = listLaunchReadyGuardians();
@@ -77,8 +103,18 @@ export function ExploreJourneyClient() {
     if (pace === "packed") {
       g = g.filter((x) => x.companion_style_slugs.includes("energetic") || x.companion_style_slugs.includes("planner"));
     }
-    tastes.forEach((tid) => {
-      if (tid === "tastePhoto") g.sort((a, b) => (b.theme_slugs.includes("photo_route") ? 1 : 0) - (a.theme_slugs.includes("photo_route") ? 1 : 0));
+    if (guardianStylePrefs.length > 0) {
+      const filtered = g.filter((x) =>
+        guardianStylePrefs.some((pref) =>
+          companionSlugsForStyle(pref).some((slug) => x.companion_style_slugs.includes(slug)),
+        ),
+      );
+      if (filtered.length > 0) g = filtered;
+    }
+    effectiveTasteIds.forEach((tid) => {
+      if (tid === "tastePhoto") {
+        g.sort((a, b) => (b.theme_slugs.includes("photo_route") ? 1 : 0) - (a.theme_slugs.includes("photo_route") ? 1 : 0));
+      }
     });
     g = [...g].sort((a, b) => (b.avg_traveler_rating ?? 0) - (a.avg_traveler_rating ?? 0));
     if (g.length > 0 && resultsSpin > 0) {
@@ -98,40 +134,48 @@ export function ExploreJourneyClient() {
         if (theme === "safe_solo") return p.kind === "practical" || p.kind === "local_tip";
         return true;
       })
-      .slice(0, 6);
+      .slice(0, 8);
 
     return { guardians: g.slice(0, 6), posts };
-  }, [region, theme, langPref, pace, tastes, comingSoonArea, resultsSpin]);
-
-  function toggleTaste(id: string) {
-    setTastes((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-  }
+  }, [region, theme, langPref, pace, comingSoonArea, resultsSpin, guardianStylePrefs, effectiveTasteIds]);
 
   function pos(g: PublicGuardian) {
     return isKo ? g.positioning.ko : g.positioning.en;
   }
 
-  const summaryChips: { label: string }[] = [];
-  if (region) {
-    const copy = tLaunch.raw(region) as { name: string };
-    summaryChips.push({ label: copy.name });
+  function toggleSceneMood(id: SceneMoodId) {
+    setSceneMoods((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }
-  if (theme) {
-    const copy = tThemes.raw(theme) as { title: string };
-    summaryChips.push({ label: copy.title });
+
+  function toggleGuardianStyle(id: GuardianStyleId) {
+    setGuardianStylePrefs((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }
-  const tripKey = days === "1" ? "tripDays1" : days === "2" ? "tripDays2" : "tripDays3";
-  summaryChips.push({ label: t(tripKey) });
-  summaryChips.push({
-    label:
-      langPref === "any"
-        ? `${t("langPref")}: ${t("langAny")}`
-        : `${t("langPref")}: ${langPref.toUpperCase()}`,
-  });
+
+  function addWorkToken(w: string) {
+    const t0 = w.trim();
+    if (!t0 || workTokens.includes(t0)) return;
+    setWorkTokens((prev) => [...prev, t0]);
+  }
+
+  function removeWorkToken(w: string) {
+    setWorkTokens((prev) => prev.filter((x) => x !== w));
+  }
+
+  function addArtistToken(w: string) {
+    const t0 = w.trim();
+    if (!t0 || artistTokens.includes(t0)) return;
+    setArtistTokens((prev) => [...prev, t0]);
+  }
+
+  function removeArtistToken(w: string) {
+    setArtistTokens((prev) => prev.filter((x) => x !== w));
+  }
+
+  const showMobileStickyCta = step === 2 || step === 3;
 
   return (
     <div className="bg-[var(--bg-page)] min-h-[70vh]">
-      <section className="border-border/60 border-b bg-white/90">
+      <section className="border-border/60 border-b bg-card/95">
         <div className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 sm:py-16">
           <p className="text-primary inline-flex items-center justify-center gap-1.5 text-[11px] font-semibold tracking-[0.2em] uppercase">
             <Sparkles className="size-3.5" aria-hidden />
@@ -142,7 +186,14 @@ export function ExploreJourneyClient() {
         </div>
       </section>
 
-      <div id="journey-steps" className="mx-auto max-w-3xl scroll-mt-24 px-4 py-8 sm:px-6 sm:py-10">
+      <div
+        id="journey-steps"
+        className={cn(
+          "mx-auto scroll-mt-24 px-4 py-8 sm:px-6 sm:py-10",
+          step === 4 ? "max-w-5xl" : "max-w-3xl",
+          showMobileStickyCta && "pb-28 sm:pb-10",
+        )}
+      >
         <div className="mb-6 flex flex-wrap items-center justify-center gap-2">
           <Button asChild variant="outline" size="sm" className="rounded-full">
             <Link href="/guardians">{t("btnGuardiansFirst")}</Link>
@@ -202,7 +253,7 @@ export function ExploreJourneyClient() {
         ) : null}
 
         {step === 0 && (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-in fade-in duration-300">
             <h2 className="text-text-strong text-xl font-semibold">{t("stepRegion")}</h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {mockLaunchAreas.map((a) => {
@@ -250,7 +301,7 @@ export function ExploreJourneyClient() {
         )}
 
         {step === 1 && (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-in fade-in duration-300">
             <h2 className="text-text-strong text-xl font-semibold">{t("stepTheme")}</h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {mockExperienceThemes.map((th) => {
@@ -276,183 +327,65 @@ export function ExploreJourneyClient() {
           </div>
         )}
 
-        {step === 2 && (
-          <div className="space-y-6">
-            <h2 className="text-text-strong text-xl font-semibold">{t("stepTrip")}</h2>
-            <div className="space-y-4">
-              <p className="text-muted-foreground text-sm">{t("tripDays")}</p>
-              <div className="flex flex-wrap gap-2">
-                {(["1", "2", "3"] as const).map((d) => (
-                  <Button
-                    key={d}
-                    type="button"
-                    variant={days === d ? "default" : "outline"}
-                    className="rounded-full"
-                    onClick={() => setDays(d)}
-                  >
-                    {t(`tripDays${d}` as "tripDays1")}
-                  </Button>
-                ))}
-              </div>
-              <p className="text-muted-foreground text-sm">{t("langPref")}</p>
-              <div className="flex flex-wrap gap-2">
-                {(["any", "en", "ko", "ja"] as const).map((l) => (
-                  <Button
-                    key={l}
-                    type="button"
-                    variant={langPref === l ? "default" : "outline"}
-                    className="rounded-full capitalize"
-                    onClick={() => setLangPref(l)}
-                  >
-                    {l}
-                  </Button>
-                ))}
-              </div>
-              <p className="text-muted-foreground text-sm">{t("pace")}</p>
-              <div className="flex flex-wrap gap-2">
-                {(["calm", "balanced", "packed"] as const).map((p) => (
-                  <Button
-                    key={p}
-                    type="button"
-                    variant={pace === p ? "default" : "outline"}
-                    className="rounded-full"
-                    onClick={() => setPace(p)}
-                  >
-                    {p === "calm" ? t("paceCalm") : p === "balanced" ? t("paceBalanced") : t("pacePacked")}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+        {step === 2 ? (
+          <ExploreTripSetupStep
+            days={days}
+            setDays={setDays}
+            tripWhenPreset={tripWhenPreset}
+            setTripWhenPreset={setTripWhenPreset}
+            tripCustomDate={tripCustomDate}
+            setTripCustomDate={setTripCustomDate}
+            partySize={partySize}
+            setPartySize={setPartySize}
+            pace={pace}
+            setPace={setPace}
+            langPref={langPref}
+            setLangPref={setLangPref}
+          />
+        ) : null}
 
-        {step === 3 && (
-          <div className="space-y-6">
-            <h2 className="text-text-strong text-xl font-semibold">{t("stepTaste")}</h2>
-            <p className="text-muted-foreground text-sm">{t("tasteHint")}</p>
-            <div className="flex flex-wrap gap-2">
-              {(
-                [
-                  ["tastePhoto", t("tastePhoto")],
-                  ["tasteFood", t("tasteFood")],
-                  ["tasteShop", t("tasteShop")],
-                  ["tasteSolo", t("tasteSolo")],
-                ] as const
-              ).map(([id, label]) => (
-                <Button
-                  key={id}
-                  type="button"
-                  variant={tastes.includes(id) ? "default" : "outline"}
-                  className="rounded-full"
-                  onClick={() => toggleTaste(id)}
-                >
-                  {label}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
+        {step === 3 ? (
+          <ExploreTasteBuilderStep
+            workQuery={workQuery}
+            setWorkQuery={setWorkQuery}
+            workTokens={workTokens}
+            addWorkToken={addWorkToken}
+            removeWorkToken={removeWorkToken}
+            artistQuery={artistQuery}
+            setArtistQuery={setArtistQuery}
+            artistTokens={artistTokens}
+            addArtistToken={addArtistToken}
+            removeArtistToken={removeArtistToken}
+            sceneMoods={sceneMoods}
+            toggleSceneMood={toggleSceneMood}
+            guardianStylePrefs={guardianStylePrefs}
+            toggleGuardianStyle={toggleGuardianStyle}
+            locale={locale}
+          />
+        ) : null}
 
-        {step === 4 && (
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-text-strong text-xl font-semibold">{t("stepResults")}</h2>
-              <p className="text-muted-foreground mt-2 text-sm">{t("summaryLabel")}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {summaryChips.map((c) => (
-                  <Badge key={c.label} variant="secondary" className="rounded-full px-3 py-1 font-medium">
-                    {c.label}
-                  </Badge>
-                ))}
-              </div>
-              {!comingSoonArea ? (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Button type="button" variant="outline" size="sm" className="rounded-xl" onClick={() => setStep(0)}>
-                    {t("editConditions")}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    className="rounded-xl"
-                    disabled={results.guardians.length === 0}
-                    onClick={() => setResultsSpin((x) => x + 1)}
-                  >
-                    {t("reRecommend")}
-                  </Button>
-                </div>
-              ) : null}
-            </div>
-
-            {comingSoonArea ? (
-              <Card className="border-dashed">
-                <CardContent className="p-8 text-center">
-                  <p className="text-muted-foreground text-sm leading-relaxed">{t("comingSoonRegion")}</p>
-                  <Button asChild className="mt-6 rounded-xl">
-                    <Link href="/guardians">{tG("cardCtaPrimary")}</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <>
-                <div>
-                  <h3 className="text-foreground mb-4 font-semibold">{tG("heroTitle")}</h3>
-                  <div className="space-y-4">
-                    {results.guardians.length === 0 ? (
-                      <div className="border-border/60 rounded-2xl border border-dashed bg-muted/10 p-8 text-center">
-                        <p className="text-foreground text-sm font-semibold">{tG("empty")}</p>
-                        <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{tG("emptyBody")}</p>
-                      </div>
-                    ) : (
-                      results.guardians.map((g) => (
-                        <Card key={g.user_id} className="overflow-hidden rounded-2xl py-0">
-                          <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
-                            <div className="relative mx-auto h-40 w-full max-w-[200px] shrink-0 sm:mx-0 sm:h-28 sm:max-w-none sm:w-28">
-                              <Image src={g.photo_url} alt="" fill className="rounded-xl object-cover sm:rounded-lg" sizes="200px" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <span className="font-semibold">{g.display_name}</span>
-                                <Badge variant={guardianTierBadgeVariant(g.guardian_tier)} className="text-[10px]">
-                                  {tTier(g.guardian_tier)}
-                                </Badge>
-                              </div>
-                              <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">{pos(g)}</p>
-                              <TrustBadgeRow ids={g.trust_badge_ids} className="mt-2" size="xs" />
-                            </div>
-                            <div className="flex shrink-0 flex-col gap-2 sm:w-40">
-                              <Button asChild size="sm" className="rounded-xl">
-                                <Link href={`/guardians/${g.user_id}`}>{tG("cardCtaPrimary")}</Link>
-                              </Button>
-                              <Button asChild size="sm" variant="outline" className="rounded-xl">
-                                <Link href={`/book?guardian=${g.user_id}`}>{tG("cardCtaSecondary")}</Link>
-                              </Button>
-                            </div>
-                          </div>
-                        </Card>
-                      ))
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-foreground mb-4 font-semibold">{t("relatedPosts")}</h3>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {results.posts.map((p) => (
-                      <Link
-                        key={p.id}
-                        href={`/posts/${p.id}`}
-                        className="border-border/70 bg-card rounded-xl border p-4 text-sm shadow-[var(--shadow-sm)] transition-colors hover:border-primary/25"
-                      >
-                        <p className="line-clamp-2 font-medium leading-snug">{p.title}</p>
-                        <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{p.summary}</p>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        )}
+        {step === 4 ? (
+          <ExploreResultsDashboard
+            comingSoonArea={comingSoonArea}
+            results={results}
+            region={region}
+            theme={theme}
+            days={days}
+            partySize={partySize}
+            pace={pace}
+            langPref={langPref}
+            tripWhenPreset={tripWhenPreset}
+            tripCustomDate={tripCustomDate}
+            workTokens={workTokens}
+            artistTokens={artistTokens}
+            sceneMoods={sceneMoods}
+            guardianStylePrefs={guardianStylePrefs}
+            onEditConditions={() => setStep(0)}
+            onReRecommend={() => setResultsSpin((x) => x + 1)}
+            onPos={pos}
+            resultsSpinDisabled={results.guardians.length === 0}
+          />
+        ) : null}
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-8">
           <Button
@@ -467,14 +400,14 @@ export function ExploreJourneyClient() {
           </Button>
           <div className="flex flex-wrap gap-2">
             {step >= 1 && step <= 3 ? (
-              <Button type="button" variant="ghost" className="rounded-xl" onClick={() => setStep((s) => s + 1)}>
+              <Button type="button" variant="ghost" className="rounded-xl max-sm:hidden" onClick={() => setStep((s) => s + 1)}>
                 {t("skipStep")}
               </Button>
             ) : null}
             <Button
               type="button"
               variant="outline"
-              className="rounded-xl"
+              className="rounded-xl max-sm:hidden"
               onClick={() => {
                 setEnteredExploreViaPreset(false);
                 setStep(0);
@@ -485,7 +418,7 @@ export function ExploreJourneyClient() {
             {step < 3 ? (
               <Button
                 type="button"
-                className="rounded-xl"
+                className="rounded-xl max-sm:hidden"
                 disabled={step === 0 && !region}
                 onClick={() => setStep((s) => s + 1)}
               >
@@ -494,7 +427,7 @@ export function ExploreJourneyClient() {
               </Button>
             ) : null}
             {step === 3 ? (
-              <Button type="button" className="rounded-xl" onClick={() => setStep(4)}>
+              <Button type="button" className="rounded-xl max-sm:hidden" onClick={() => setStep(4)}>
                 {t("seeResults")}
               </Button>
             ) : null}
@@ -503,6 +436,31 @@ export function ExploreJourneyClient() {
 
         <p className="text-muted-foreground mt-8 text-center text-xs">{tG("launchOnlyNote")}</p>
       </div>
+
+      {showMobileStickyCta ? (
+        <div className="border-border/60 fixed right-0 bottom-0 left-0 z-40 border-t bg-background/92 backdrop-blur-md sm:hidden">
+          <div className="mx-auto flex max-w-3xl gap-2 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1 rounded-xl"
+              onClick={() => setStep((s) => Math.max(0, s - 1))}
+            >
+              {t("back")}
+            </Button>
+            {step === 2 ? (
+              <Button type="button" className="flex-[2] rounded-xl shadow-[var(--shadow-brand)]" onClick={() => setStep(3)}>
+                {t("next")}
+                <ArrowRight className="size-4" />
+              </Button>
+            ) : (
+              <Button type="button" className="flex-[2] rounded-xl shadow-[var(--shadow-brand)]" onClick={() => setStep(4)}>
+                {t("seeResults")}
+              </Button>
+            )}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -3,9 +3,10 @@ import { Link } from "@/i18n/navigation";
 import { mockContentPosts, mockTravelerReviews, mockTravelerReviewQuotes } from "@/data/mock";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { TextActionLink } from "@/components/ui/text-action";
 import { HomeHeroCarousel } from "@/components/home/home-hero-carousel";
 import { HomeExploreBundle } from "@/components/home/home-explore-bundle";
-import { Star } from "lucide-react";
+import { ArrowRight, Star } from "lucide-react";
 
 export async function HomeFortyTwoPage() {
   const t = await getTranslations("Home");
@@ -33,9 +34,9 @@ export async function HomeFortyTwoPage() {
               <h2 className="text-text-strong text-2xl font-semibold tracking-tight sm:text-3xl">{t("postsSectionTitle")}</h2>
               <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{t("postsSectionLead")}</p>
             </div>
-            <Button asChild variant="outline" className="rounded-xl">
-              <Link href="/posts">{t("postsCta")}</Link>
-            </Button>
+            <TextActionLink href="/posts" className="shrink-0 self-start sm:self-end">
+              {t("postsCta")}
+            </TextActionLink>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {seoulPosts.map((p) => (
@@ -54,7 +55,7 @@ export async function HomeFortyTwoPage() {
       </section>
 
       {/* Trust */}
-      <section className="border-border/50 border-y bg-white">
+      <section className="border-border/50 border-y bg-card">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
           <div className="mb-10 max-w-xl">
             <h2 className="text-text-strong text-2xl font-semibold tracking-tight sm:text-3xl">{t("trust42Title")}</h2>
@@ -92,7 +93,7 @@ export async function HomeFortyTwoPage() {
               const q = mockTravelerReviewQuotes[r.id];
               const text = q ? (isKo ? q.ko : q.en) : r.comment ?? "";
               return (
-                <Card key={r.id} className="border-border/60 rounded-2xl border bg-white/90">
+                <Card key={r.id} className="border-border/60 rounded-2xl border bg-card/95">
                   <CardContent className="flex flex-col gap-3 p-6">
                     <div className="flex items-center gap-1 text-amber-500">
                       {Array.from({ length: 5 }).map((_, i) => (
@@ -110,15 +111,15 @@ export async function HomeFortyTwoPage() {
       </section>
 
       {/* About */}
-      <section className="bg-white">
+      <section className="bg-card">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-text-strong text-2xl font-semibold tracking-tight sm:text-3xl">{t("aboutSectionTitle")}</h2>
             <p className="text-muted-foreground mt-4 text-sm leading-relaxed sm:text-base">{t("aboutSectionLead")}</p>
             <p className="text-muted-foreground mt-4 text-sm leading-relaxed">{t("aboutSectionBody")}</p>
-            <Button asChild className="mt-8 rounded-xl">
-              <Link href="/about">{isKo ? "자세히 보기" : "Learn more"}</Link>
-            </Button>
+            <div className="mt-8 flex justify-center">
+              <TextActionLink href="/about">{isKo ? "자세히 보기" : "Learn more"}</TextActionLink>
+            </div>
           </div>
         </div>
       </section>
@@ -141,8 +142,14 @@ export async function HomeFortyTwoPage() {
               <Button asChild size="lg" className="rounded-2xl px-8 shadow-[var(--shadow-brand)]">
                 <Link href="/guardians">{t("dualCtaTravelerPrimary")}</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-2xl border-2 bg-white/90">
-                <Link href="/explore">{t("dualCtaTravelerSecondary")}</Link>
+              <Button asChild size="lg" variant="outline" className="group/cta2 rounded-2xl border-2 bg-card/95">
+                <Link href="/explore" className="inline-flex items-center gap-2 font-semibold">
+                  {t("dualCtaTravelerSecondary")}
+                  <ArrowRight
+                    className="size-4 shrink-0 transition-transform duration-200 group-hover/cta2:translate-x-0.5"
+                    aria-hidden
+                  />
+                </Link>
               </Button>
             </div>
           </div>

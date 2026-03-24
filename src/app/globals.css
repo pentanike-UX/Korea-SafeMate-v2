@@ -166,56 +166,86 @@
   --sidebar-accent-foreground: var(--text-strong);
   --sidebar-border: var(--border-default);
   --sidebar-ring: var(--border-focus);
+
+  --bg-quick-start: #f3f4fa;
+  --ring-offset-surface: #f3f4fa;
 }
 
 .dark {
-  --brand-primary: #c978ff;
-  --brand-primary-hover: #d9a0ff;
-  --brand-primary-pressed: #b35ff0;
-  --brand-primary-soft: #2a1f38;
-  --brand-primary-soft-2: #352848;
+  --brand-primary: #b565f0;
+  --brand-primary-hover: #c67ff5;
+  --brand-primary-pressed: #9d4ed4;
+  --brand-primary-soft: #2a2235;
+  --brand-primary-soft-2: #322a40;
 
   --brand-trust-blue: #5b9dff;
   --brand-trust-blue-hover: #7ab0ff;
-  --brand-trust-blue-soft: #1a2744;
+  --brand-trust-blue-soft: #1e2a44;
 
-  --text-strong: #f4f6ff;
-  --text-primary: #e8eaf5;
-  --text-secondary: #a8b0cc;
-  --text-muted: #7c849e;
+  --text-strong: #f2f4fb;
+  --text-primary: #e4e7f0;
+  --text-secondary: #9aa3bf;
+  --text-muted: #7a8299;
 
-  --bg-page: #0f0d16;
-  --bg-surface: #161222;
-  --bg-surface-subtle: #1c1828;
-  --bg-elevated: #1e1a2e;
+  --bg-page: #0e0c14;
+  --bg-surface: #15121f;
+  --bg-surface-subtle: #1b1826;
+  --bg-elevated: #201c2c;
 
-  --border-default: #2e2a40;
-  --border-strong: #3d384f;
+  --border-default: #2f2b3d;
+  --border-strong: #3f3a50;
   --border-focus: var(--brand-primary);
 
   --success-soft: #0f2a22;
   --warning-soft: #2a2410;
   --error-soft: #2a1518;
-  --info-soft: #1a2744;
+  --info-soft: #1e2a44;
 
-  --gradient-brand: linear-gradient(135deg, #c978ff 0%, #5b9dff 100%);
-  --gradient-brand-soft: linear-gradient(135deg, #2a1f38 0%, #1a2744 100%);
+  --gradient-brand: linear-gradient(135deg, #b565f0 0%, #5b9dff 100%);
+  --gradient-brand-soft: linear-gradient(135deg, #2a2235 0%, #1e2a44 100%);
 
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.45);
-  --shadow-brand: 0 10px 28px rgba(201, 120, 255, 0.25);
+  --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 14px 36px rgba(0, 0, 0, 0.5);
+  --shadow-brand: 0 10px 28px rgba(181, 101, 240, 0.22);
+
+  /* Shadcn / semantic (dark) */
+  --background: var(--bg-page);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--brand-primary);
+  --primary-foreground: #0e0c14;
+  --secondary: var(--brand-primary-soft);
+  --secondary-foreground: var(--text-strong);
+  --muted: var(--bg-surface-subtle);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--brand-primary-soft-2);
+  --accent-foreground: var(--text-strong);
+  --destructive: #f87171;
+  --destructive-foreground: #0e0c14;
+  --border: var(--border-default);
+  --input: var(--border-strong);
+  --ring: var(--border-focus);
+  --chart-1: var(--brand-primary);
+  --chart-2: var(--brand-trust-blue);
+  --chart-3: var(--accent-purple-blue);
+  --chart-4: var(--accent-pink);
+  --chart-5: var(--text-secondary);
 
   --sidebar: var(--bg-surface);
   --sidebar-foreground: var(--text-primary);
   --sidebar-primary: var(--brand-primary);
-  --sidebar-primary-foreground: #0f0d16;
+  --sidebar-primary-foreground: #0e0c14;
   --sidebar-accent: var(--brand-primary-soft);
   --sidebar-accent-foreground: var(--text-strong);
   --sidebar-border: var(--border-default);
   --sidebar-ring: var(--border-focus);
 
-  --destructive: #ff7a7e;
-  --primary-foreground: #0f0d16;
+  /* Quick Start / offset rings */
+  --bg-quick-start: #161320;
+  --ring-offset-surface: var(--bg-quick-start);
 }
 
 @layer base {
@@ -227,6 +257,7 @@
   }
   html {
     @apply font-sans;
+    color-scheme: light dark;
   }
 }
 
@@ -268,6 +299,12 @@
       radial-gradient(ellipse 100% 80% at 100% 0%, color-mix(in srgb, var(--brand-primary) 14%, transparent), transparent 50%),
       radial-gradient(ellipse 80% 60% at 0% 20%, color-mix(in srgb, var(--brand-trust-blue) 12%, transparent), transparent 55%),
       linear-gradient(180deg, #ffffff 0%, #faf8ff 38%, #f3f6ff 100%);
+  }
+  .dark .bg-hero-42 {
+    background:
+      radial-gradient(ellipse 100% 80% at 100% 0%, color-mix(in srgb, var(--brand-primary) 18%, transparent), transparent 52%),
+      radial-gradient(ellipse 80% 60% at 0% 20%, color-mix(in srgb, var(--brand-trust-blue) 14%, transparent), transparent 55%),
+      linear-gradient(180deg, #14121c 0%, #161222 42%, #12101a 100%);
   }
   .bg-cta-brand {
     background: var(--gradient-brand);
