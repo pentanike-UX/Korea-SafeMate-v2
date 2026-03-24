@@ -1,0 +1,201 @@
+"use client";
+
+import Image from "next/image";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { HOME_HERO_INTERVAL_MS, HOME_HERO_SLIDES } from "@/data/home-hero-slides";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { ArrowRight, ChevronLeft, ChevronRight, Compass, Sparkles, Users } from "lucide-react";
+
+export function HomeHeroCarousel() {
+  const t = useTranslations("Home");
+  const tBrand = useTranslations("Brand");
+  const total = HOME_HERO_SLIDES.length;
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const go = useCallback(
+    (dir: -1 | 1) => {
+      setIndex((i) => (i + dir + total) % total);
+    },
+    [total],
+  );
+
+  useEffect(() => {
+    if (paused) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      timerRef.current = null;
+      return;
+    }
+    timerRef.current = setInterval(() => {
+      setIndex((i) => (i + 1) % total);
+    }, HOME_HERO_INTERVAL_MS);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [paused, total]);
+
+  const slide = HOME_HERO_SLIDES[index]!;
+  const metaLabel = t(slide.metaKey);
+  const progressLabel = t("heroCarouselProgress", {
+    current: String(index + 1).padStart(2, "0"),
+    total: String(total).padStart(2, "0"),
+  });
+
+  return (
+    <section
+      className="relative isolate -mt-14 min-h-[min(100dvh,56rem)] overflow-hidden pt-14 sm:-mt-16 sm:min-h-[min(100dvh,60rem)] sm:pt-16"
+      aria-label={t("heroCarouselAria")}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) setPaused(false);
+      }}
+    >
+      {/* Background images — crossfade */}
+      <div className="absolute inset-0" aria-hidden>
+        {HOME_HERO_SLIDES.map((slide, i) => (
+          <div
+            key={slide.src}
+            className={cn(
+              "absolute inset-0 transition-opacity duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)]",
+              i === index ? "z-[1] opacity-100" : "z-0 opacity-0",
+            )}
+          >
+            <Image
+              src={slide.src}
+              alt=""
+              fill
+              className="object-cover object-center"
+              sizes="100vw"
+              priority={i === 0}
+              fetchPriority={i === 0 ? "high" : "low"}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Readability: stronger darkening on the left, lighter on the right */}
+      <div
+        className="pointer-events-none absolute inset-0 z-[2]"
+        style={{
+          background: `
+            linear-gradient(90deg,
+              rgba(6, 10, 28, 0.78) 0%,
+              rgba(6, 10, 28, 0.52) 38%,
+              rgba(6, 10, 28, 0.22) 62%,
+              rgba(6, 10, 28, 0.12) 100%
+            ),
+            linear-gradient(180deg,
+              rgba(6, 10, 28, 0.35) 0%,
+              transparent 28%,
+              transparent 55%,
+              rgba(6, 10, 28, 0.5) 100%
+            )
+          `,
+        }}
+      />
+
+      {/* Content */}
+      <div className="relative z-[3] mx-auto flex min-h-[min(100dvh,56rem)] max-w-6xl flex-col justify-center px-4 py-16 sm:min-h-[min(100dvh,60rem)] sm:px-6 sm:py-20 lg:py-24">
+        <div className="max-w-xl lg:max-w-[28rem]">
+          <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.2em] text-white/80 uppercase">
+            <Sparkles className="size-3.5 text-white/90" aria-hidden />
+            {t("eyebrow")}
+          </p>
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-balance text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)] sm:text-4xl md:text-[2.35rem] md:leading-[1.12]">
+            {t("heroTitle")}
+          </h1>
+          <p className="mt-4 text-[15px] leading-relaxed text-white/88">{t("heroLead")}</p>
+          <p className="mt-2 text-sm font-medium text-white/65">{tBrand("tagline")}</p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-nowrap sm:items-stretch sm:gap-4">
+            <Button
+              asChild
+              size="lg"
+              className="h-auto min-h-12 w-full gap-2.5 rounded-2xl border-0 bg-white px-8 py-3.5 text-base font-semibold text-[var(--brand-primary)] shadow-lg shadow-black/25 hover:bg-white/95 sm:w-auto"
+            >
+              <Link href="/guardians" className="gap-2.5">
+                <Users className="size-5 shrink-0" aria-hidden />
+                {t("ctaPrimaryRequest")}
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="h-auto min-h-12 w-full gap-2.5 rounded-2xl border-2 border-white/45 bg-white/10 px-8 py-3.5 text-base font-semibold text-white shadow-sm backdrop-blur-sm sm:w-auto hover:border-white/70 hover:bg-white/18"
+            >
+              <Link href="/posts?content=route" className="gap-2 whitespace-nowrap">
+                <Compass className="size-5 shrink-0 text-white" aria-hidden />
+                <span>{t("ctaSecondaryExplore")}</span>
+                <ArrowRight className="size-5 shrink-0 text-white/90" aria-hidden />
+              </Link>
+            </Button>
+          </div>
+          <p className="mt-6 text-xs leading-relaxed text-white/55">{t("scopeNote")}</p>
+        </div>
+
+        {/* Bottom bar: progress + meta + dots + arrows */}
+        <div className="mt-auto flex flex-col gap-4 pt-12 sm:pt-16 lg:pt-20">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="min-w-0 flex-1 space-y-2">
+              <p
+                className="text-[11px] font-medium tracking-[0.12em] text-white/50 uppercase"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {progressLabel}
+              </p>
+              <p className="text-sm font-medium tracking-tight text-white/90">{metaLabel}</p>
+              <div className="h-px w-full max-w-xs overflow-hidden rounded-full bg-white/20">
+                <div
+                  key={index}
+                  className="home-hero-progress-bar h-full rounded-full bg-white/75"
+                  style={{ animationDuration: `${HOME_HERO_INTERVAL_MS}ms` }}
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => go(-1)}
+                className="flex size-10 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                aria-label={t("heroCarouselPrev")}
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => go(1)}
+                className="flex size-10 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                aria-label={t("heroCarouselNext")}
+              >
+                <ChevronRight className="size-5" />
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2" role="tablist" aria-label={t("heroCarouselIndicators")}>
+            {HOME_HERO_SLIDES.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                role="tab"
+                aria-selected={i === index}
+                aria-label={t("heroCarouselGoTo", { n: i + 1 })}
+                onClick={() => setIndex(i)}
+                className={cn(
+                  "h-1.5 rounded-full transition-all duration-500 ease-out",
+                  i === index ? "w-8 bg-white" : "w-1.5 bg-white/35 hover:bg-white/55",
+                )}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

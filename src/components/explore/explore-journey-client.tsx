@@ -39,6 +39,7 @@ export function ExploreJourneyClient() {
   const [langPref, setLangPref] = useState<LangPref>("any");
   const [pace, setPace] = useState<Pace>("balanced");
   const [tastes, setTastes] = useState<string[]>([]);
+  const [resultsSpin, setResultsSpin] = useState(0);
 
   useEffect(() => {
     const a = searchParams.get("area") as LaunchAreaSlug | null;
@@ -69,6 +70,10 @@ export function ExploreJourneyClient() {
       if (tid === "tastePhoto") g.sort((a, b) => (b.theme_slugs.includes("photo_route") ? 1 : 0) - (a.theme_slugs.includes("photo_route") ? 1 : 0));
     });
     g = [...g].sort((a, b) => (b.avg_traveler_rating ?? 0) - (a.avg_traveler_rating ?? 0));
+    if (g.length > 0 && resultsSpin > 0) {
+      const rot = resultsSpin % g.length;
+      g = [...g.slice(rot), ...g.slice(0, rot)];
+    }
 
     const posts = mockContentPosts
       .filter((p) => p.status === "approved" && p.region_slug === "seoul")
@@ -85,7 +90,7 @@ export function ExploreJourneyClient() {
       .slice(0, 6);
 
     return { guardians: g.slice(0, 6), posts };
-  }, [region, theme, langPref, pace, tastes, comingSoonArea]);
+  }, [region, theme, langPref, pace, tastes, comingSoonArea, resultsSpin]);
 
   function toggleTaste(id: string) {
     setTastes((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -109,7 +114,7 @@ export function ExploreJourneyClient() {
   summaryChips.push({
     label:
       langPref === "any"
-        ? `${t("langPref")}: ${isKo ? "무관" : "Any"}`
+        ? `${t("langPref")}: ${t("langAny")}`
         : `${t("langPref")}: ${langPref.toUpperCase()}`,
   });
 
@@ -126,7 +131,15 @@ export function ExploreJourneyClient() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+      <div id="journey-steps" className="mx-auto max-w-3xl scroll-mt-24 px-4 py-8 sm:px-6 sm:py-10">
+        <div className="mb-6 flex flex-wrap items-center justify-center gap-2">
+          <Button asChild variant="outline" size="sm" className="rounded-full">
+            <Link href="/guardians">{t("btnGuardiansFirst")}</Link>
+          </Button>
+          <Button type="button" size="sm" className="rounded-full" onClick={() => setStep(0)}>
+            {t("btnStart")}
+          </Button>
+        </div>
         <div className="mb-8 flex flex-wrap items-center justify-center gap-2">
           {Array.from({ length: STEPS }).map((_, i) => (
             <button
@@ -275,7 +288,7 @@ export function ExploreJourneyClient() {
         {step === 3 && (
           <div className="space-y-6">
             <h2 className="text-text-strong text-xl font-semibold">{t("stepTaste")}</h2>
-            <p className="text-muted-foreground text-sm">{isKo ? "해당되면 눌러 주세요 (복수 선택)" : "Tap what fits (multi-select)"}</p>
+            <p className="text-muted-foreground text-sm">{t("tasteHint")}</p>
             <div className="flex flex-wrap gap-2">
               {(
                 [
@@ -311,6 +324,23 @@ export function ExploreJourneyClient() {
                   </Badge>
                 ))}
               </div>
+              {!comingSoonArea ? (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Button type="button" variant="outline" size="sm" className="rounded-xl" onClick={() => setStep(0)}>
+                    {t("editConditions")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="rounded-xl"
+                    disabled={results.guardians.length === 0}
+                    onClick={() => setResultsSpin((x) => x + 1)}
+                  >
+                    {t("reRecommend")}
+                  </Button>
+                </div>
+              ) : null}
             </div>
 
             {comingSoonArea ? (
@@ -328,7 +358,10 @@ export function ExploreJourneyClient() {
                   <h3 className="text-foreground mb-4 font-semibold">{tG("heroTitle")}</h3>
                   <div className="space-y-4">
                     {results.guardians.length === 0 ? (
-                      <p className="text-muted-foreground text-sm">{tG("empty")}</p>
+                      <div className="border-border/60 rounded-2xl border border-dashed bg-muted/10 p-8 text-center">
+                        <p className="text-foreground text-sm font-semibold">{tG("empty")}</p>
+                        <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{tG("emptyBody")}</p>
+                      </div>
                     ) : (
                       results.guardians.map((g) => (
                         <Card key={g.user_id} className="overflow-hidden rounded-2xl py-0">
@@ -391,7 +424,12 @@ export function ExploreJourneyClient() {
             <ArrowLeft className="size-4" />
             {t("back")}
           </Button>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {step >= 1 && step <= 3 ? (
+              <Button type="button" variant="ghost" className="rounded-xl" onClick={() => setStep((s) => s + 1)}>
+                {t("skipStep")}
+              </Button>
+            ) : null}
             <Button type="button" variant="outline" className="rounded-xl" onClick={() => setStep(0)}>
               {t("reset")}
             </Button>

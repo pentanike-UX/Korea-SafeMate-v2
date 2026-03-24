@@ -1,5 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
 import type { BookingRequestPayload } from "@/types/domain";
+import { createServiceRoleSupabase } from "@/lib/supabase/service-role";
 
 /**
  * Guest booking intake — persists to Supabase when service role + URL are configured.
@@ -17,13 +17,9 @@ export async function POST(req: Request) {
     return Response.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const sb = createServiceRoleSupabase();
 
-  if (url && serviceKey) {
-    const sb = createClient(url, serviceKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
+  if (sb) {
 
     const notesParts = [
       `User type: ${payload.traveler_user_type}`,

@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { ContentCategory } from "@/types/domain";
 import type { ContentPost } from "@/types/domain";
+import { postHasRouteJourney } from "@/lib/content-post-route";
+import { RoutePostCard } from "@/components/route-posts/route-post-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +18,9 @@ type RegionFilter = (typeof REGION_SLUGS)[number];
 
 const SORTS = ["recommended", "popular", "latest"] as const;
 type SortMode = (typeof SORTS)[number];
+
+const CONTENT_FILTERS = ["all", "article", "route"] as const;
+type ContentFilter = (typeof CONTENT_FILTERS)[number];
 
 function postVisualSeed(id: string) {
   let h = 0;
@@ -30,10 +36,18 @@ export function PostsListClient({
   categories: ContentCategory[];
 }) {
   const t = useTranslations("Posts");
+  const searchParams = useSearchParams();
   const [q, setQ] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [region, setRegion] = useState<RegionFilter>("all");
   const [sort, setSort] = useState<SortMode>("recommended");
+  const [contentFilter, setContentFilter] = useState<ContentFilter>("all");
+
+  useEffect(() => {
+    const c = searchParams.get("content");
+    if (c === "route") setContentFilter("route");
+    else if (c === "article") setContentFilter("article");
+  }, [searchParams]);
 
   const filtered = useMemo(() => {
     let list = [...posts];
@@ -52,6 +66,11 @@ export function PostsListClient({
     if (region !== "all") {
       list = list.filter((p) => p.region_slug === region);
     }
+    if (contentFilter === "article") {
+      list = list.filter((p) => !postHasRouteJourney(p));
+    } else if (contentFilter === "route") {
+      list = list.filter((p) => postHasRouteJourney(p));
+    }
     if (sort === "popular") {
       list.sort((a, b) => b.popular_score - a.popular_score);
     } else if (sort === "latest") {
@@ -60,7 +79,7 @@ export function PostsListClient({
       list.sort((a, b) => b.recommended_score - a.recommended_score);
     }
     return list;
-  }, [posts, q, category, region, sort]);
+  }, [posts, q, category, region, sort, contentFilter]);
 
   return (
     <div className="bg-[var(--bg-page)] min-h-screen">
@@ -150,6 +169,23 @@ export function PostsListClient({
                 ))}
               </div>
             </div>
+            <div className="space-y-2 lg:min-w-[200px]">
+              <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">{t("filterContent")}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {CONTENT_FILTERS.map((f) => (
+                  <Button
+                    key={f}
+                    type="button"
+                    size="sm"
+                    variant={contentFilter === f ? "default" : "outline"}
+                    className="rounded-full text-xs"
+                    onClick={() => setContentFilter(f)}
+                  >
+                    {t(`content${f.charAt(0).toUpperCase() + f.slice(1)}` as "contentAll")}
+                  </Button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -159,44 +195,48 @@ export function PostsListClient({
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((p) => (
               <li key={p.id}>
-                <Link
-                  href={`/posts/${p.id}`}
-                  className="border-border/70 bg-card group flex h-full flex-col overflow-hidden rounded-2xl border shadow-[var(--shadow-sm)] transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-[var(--shadow-md)]"
-                >
-                  <div className="relative aspect-[16/10] overflow-hidden">
-                    <div className="absolute inset-0 z-0" style={{ background: postVisualSeed(p.id) }} />
-                    {p.featured ? (
-                      <div className="absolute top-3 left-3 z-10">
-                        <Badge className="rounded-full bg-white/95 text-[10px] font-semibold text-[var(--brand-primary)] shadow-sm">
-                          {t("featured")}
-                        </Badge>
-                      </div>
-                    ) : null}
-                  </div>
-                  <div className="flex flex-1 flex-col p-5">
-                    <p className="text-primary text-[10px] font-bold tracking-widest uppercase">
-                      {p.tags.slice(0, 3).join(" · ")}
-                    </p>
-                    <h2 className="text-foreground mt-2 line-clamp-2 font-semibold leading-snug group-hover:text-primary">
-                      {p.title}
-                    </h2>
-                    <p className="text-muted-foreground mt-2 line-clamp-2 flex-1 text-sm">{p.summary}</p>
-                    <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-2 text-xs">
-                      <span>{p.author_display_name}</span>
-                      <span aria-hidden>·</span>
-                      <span className="capitalize">{t(`region.${p.region_slug}` as "region.seoul")}</span>
-                      {p.helpful_rating != null ? (
-                        <>
-                          <span aria-hidden>·</span>
-                          <span className="inline-flex items-center gap-0.5">
-                            <Heart className="size-3.5 fill-rose-400/80 text-rose-400/80" aria-hidden />
-                            {p.helpful_rating.toFixed(1)}
-                          </span>
-                        </>
+                {postHasRouteJourney(p) ? (
+                  <RoutePostCard post={p} regionLabel={t(`region.${p.region_slug}` as "region.seoul")} />
+                ) : (
+                  <Link
+                    href={`/posts/${p.id}`}
+                    className="border-border/70 bg-card group flex h-full flex-col overflow-hidden rounded-2xl border shadow-[var(--shadow-sm)] transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-[var(--shadow-md)]"
+                  >
+                    <div className="relative aspect-[16/10] overflow-hidden">
+                      <div className="absolute inset-0 z-0" style={{ background: postVisualSeed(p.id) }} />
+                      {p.featured ? (
+                        <div className="absolute top-3 left-3 z-10">
+                          <Badge className="rounded-full bg-white/95 text-[10px] font-semibold text-[var(--brand-primary)] shadow-sm">
+                            {t("featured")}
+                          </Badge>
+                        </div>
                       ) : null}
                     </div>
-                  </div>
-                </Link>
+                    <div className="flex flex-1 flex-col p-5">
+                      <p className="text-primary text-[10px] font-bold tracking-widest uppercase">
+                        {p.tags.slice(0, 3).join(" · ")}
+                      </p>
+                      <h2 className="text-foreground mt-2 line-clamp-2 font-semibold leading-snug group-hover:text-primary">
+                        {p.title}
+                      </h2>
+                      <p className="text-muted-foreground mt-2 line-clamp-2 flex-1 text-sm">{p.summary}</p>
+                      <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-2 text-xs">
+                        <span>{p.author_display_name}</span>
+                        <span aria-hidden>·</span>
+                        <span className="capitalize">{t(`region.${p.region_slug}` as "region.seoul")}</span>
+                        {p.helpful_rating != null ? (
+                          <>
+                            <span aria-hidden>·</span>
+                            <span className="inline-flex items-center gap-0.5">
+                              <Heart className="size-3.5 fill-rose-400/80 text-rose-400/80" aria-hidden />
+                              {p.helpful_rating.toFixed(1)}
+                            </span>
+                          </>
+                        ) : null}
+                      </div>
+                    </div>
+                  </Link>
+                )}
               </li>
             ))}
           </ul>

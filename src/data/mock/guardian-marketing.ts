@@ -37,7 +37,7 @@ export const mockGuardianMarketingById: Record<string, GuardianMarketingProfile>
       { ko: "하루 동행", en: "Half / full day" },
       { ko: "첫날 적응", en: "First-day settle-in" },
     ],
-    representative_post_ids: ["p9", "p8", "p1"],
+    representative_post_ids: ["rp-hybrid-1", "p9", "p8", "p1"],
     response_note: { ko: "평균 2시간 내 첫 답변", en: "Usually replies within ~2h" },
     review_count_display: 48,
   },

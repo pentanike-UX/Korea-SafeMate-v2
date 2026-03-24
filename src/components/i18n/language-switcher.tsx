@@ -6,16 +6,26 @@ import { cn } from "@/lib/utils";
 
 const SWITCH_LOCALES = ["en", "ko", "ja"] as const;
 
-export function LanguageSwitcher({ className }: { className?: string }) {
+export function LanguageSwitcher({
+  className,
+  variant = "default",
+}: {
+  className?: string;
+  variant?: "default" | "onDark";
+}) {
   const t = useTranslations("LanguageSwitcher");
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const onDark = variant === "onDark";
 
   return (
     <div
       className={cn(
-        "border-border/70 bg-[color-mix(in_srgb,var(--brand-primary-soft)_45%,var(--bg-surface-subtle))] flex items-center gap-0.5 rounded-lg border p-0.5",
+        "flex items-center gap-0.5 rounded-lg border p-0.5",
+        onDark
+          ? "border-white/20 bg-white/10 backdrop-blur-sm"
+          : "border-border/70 bg-[color-mix(in_srgb,var(--brand-primary-soft)_45%,var(--bg-surface-subtle))]",
         className,
       )}
       role="group"
@@ -29,8 +39,12 @@ export function LanguageSwitcher({ className }: { className?: string }) {
           className={cn(
             "rounded-md px-2 py-1 text-[11px] font-semibold tracking-wide transition-colors",
             locale === code
-              ? "bg-[var(--brand-primary)] text-[var(--text-on-brand)] shadow-sm ring-1 ring-[color-mix(in_srgb,var(--brand-primary)_40%,#fff)]"
-              : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
+              ? onDark
+                ? "bg-white text-[var(--brand-primary)] shadow-sm ring-1 ring-white/40"
+                : "bg-[var(--brand-primary)] text-[var(--text-on-brand)] shadow-sm ring-1 ring-[color-mix(in_srgb,var(--brand-primary)_40%,#fff)]"
+              : onDark
+                ? "text-white/75 hover:bg-white/12 hover:text-white"
+                : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
           )}
         >
           {t(code)}

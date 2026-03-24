@@ -1,6 +1,7 @@
 import type { ContentPost } from "@/types/domain";
+import { mockRouteContentPosts } from "./route-content-posts";
 
-export const mockContentPosts: ContentPost[] = [
+const legacyMockContentPosts: ContentPost[] = [
   {
     id: "p1",
     author_user_id: "g1",
@@ -249,3 +250,5 @@ export const mockContentPosts: ContentPost[] = [
     featured: false,
   },
 ];
+
+export const mockContentPosts: ContentPost[] = [...legacyMockContentPosts, ...mockRouteContentPosts];

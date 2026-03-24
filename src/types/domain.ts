@@ -165,6 +165,58 @@ export interface ContentCategory {
   description: string;
 }
 
+/** Shape of guardian-authored content — v2 route product uses spot / route / hybrid. */
+export type ContentPostFormat = "article" | "spot" | "route" | "hybrid";
+
+export type RouteTransportMode = "walk" | "car" | "mixed";
+
+export type RouteDifficulty = "easy" | "moderate" | "active";
+
+export type RouteRecommendedTimeOfDay = "morning" | "afternoon" | "evening" | "night" | "flexible";
+
+/** WGS84 — swap map provider without changing domain. */
+export interface MapLatLng {
+  lat: number;
+  lng: number;
+}
+
+export interface RouteJourneyMetadata {
+  transport_mode: RouteTransportMode;
+  /** Total leg time in minutes (manual or from routing API later). */
+  estimated_total_duration_minutes: number;
+  /** km — manual or computed when routing is wired. */
+  estimated_total_distance_km: number;
+  recommended_time_of_day: RouteRecommendedTimeOfDay;
+  difficulty: RouteDifficulty;
+  recommended_traveler_types: string[];
+  night_friendly: boolean;
+}
+
+/** One stop on a guardian-curated route (or the single anchor for a spot post). */
+export interface RouteSpot {
+  id: string;
+  order: number;
+  title: string;
+  place_name: string;
+  short_description: string;
+  body: string;
+  image_urls: string[];
+  recommend_reason: string;
+  stay_duration_minutes: number;
+  photo_tip: string;
+  caution: string;
+  lat: number;
+  lng: number;
+  featured?: boolean;
+}
+
+export interface RouteJourney {
+  metadata: RouteJourneyMetadata;
+  spots: RouteSpot[];
+  /** Display path (spot-to-spot or routed polyline). Provider-agnostic. */
+  path: MapLatLng[];
+}
+
 export interface ContentPost {
   id: string;
   author_user_id: string;
@@ -186,6 +238,12 @@ export interface ContentPost {
   popular_score: number;
   recommended_score: number;
   featured: boolean;
+  /** Omitted or `article` for legacy text-only posts. */
+  post_format?: ContentPostFormat;
+  cover_image_url?: string | null;
+  route_journey?: RouteJourney;
+  /** Short bullets for traveler “insight” strip on route detail. */
+  route_highlights?: string[];
 }
 
 export interface ServiceType {

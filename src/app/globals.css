@@ -276,4 +276,19 @@
   .bg-booking-progress-fill {
     background: linear-gradient(90deg, var(--brand-primary), var(--brand-trust-blue));
   }
+
+  @keyframes home-hero-progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  .home-hero-progress-bar {
+    transform-origin: left center;
+    animation-name: home-hero-progress;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
 }

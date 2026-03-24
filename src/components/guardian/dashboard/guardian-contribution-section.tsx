@@ -84,13 +84,20 @@ export function GuardianContributionSection({
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <Button asChild className="rounded-xl">
-            <Link href={exploreHref}>Add local intel post</Link>
-          </Button>
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2">
+            <Button asChild className="rounded-xl">
+              <Link href="/guardian/posts/new">Create route post</Link>
+            </Button>
+            <Button asChild variant="outline" className="rounded-xl">
+              <Link href="/guardian/posts">My posts</Link>
+            </Button>
+            <Button asChild variant="outline" className="rounded-xl">
+              <Link href={exploreHref}>Explore regions</Link>
+            </Button>
+          </div>
           <p className="text-muted-foreground max-w-md text-xs leading-relaxed">
-            Posts are attributed to your Guardian identity in Explore — quality and moderation matter more than
-            volume alone.
+            Route posts pair map + stops with your voice — quality and moderation still gate matching.
           </p>
         </div>
 

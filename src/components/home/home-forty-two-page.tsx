@@ -1,20 +1,15 @@
 import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import {
-  mockContentPosts,
-  mockExperienceThemes,
-  mockFeaturedGuardians,
-  mockLaunchAreas,
-  mockTravelerReviews,
-  mockTravelerReviewQuotes,
-} from "@/data/mock";
+import { mockContentPosts, mockFeaturedGuardians, mockTravelerReviews, mockTravelerReviewQuotes } from "@/data/mock";
 import { listLaunchReadyGuardians, type PublicGuardian } from "@/lib/guardian-public";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrustBadgesServer } from "@/components/forty-two/trust-badges-server";
-import { ArrowRight, ChevronRight, Compass, MapPin, Sparkles, Star, Users } from "lucide-react";
+import { HomeHeroCarousel } from "@/components/home/home-hero-carousel";
+import { HomeQuickStartExplorer } from "@/components/home/home-quick-start-explorer";
+import { ChevronRight, Star } from "lucide-react";
 import { guardianTierBadgeVariant } from "@/lib/guardian-tier-ui";
 import type { GuardianTier } from "@/types/domain";
 
@@ -30,9 +25,6 @@ function orderedLaunchGuardians(): PublicGuardian[] {
 
 export async function HomeFortyTwoPage() {
   const t = await getTranslations("Home");
-  const tBrand = await getTranslations("Brand");
-  const tLaunch = await getTranslations("LaunchAreas");
-  const tThemes = await getTranslations("ExperienceThemes");
   const tTier = await getTranslations("GuardianTier");
   const tG = await getTranslations("GuardiansDiscover");
   const locale = await getLocale();
@@ -56,171 +48,9 @@ export async function HomeFortyTwoPage() {
 
   return (
     <div className="bg-[var(--bg-page)]">
-      {/* Hero */}
-      <section className="bg-hero-42 relative isolate overflow-hidden">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:items-center lg:gap-14 lg:py-24">
-          <div>
-            <p className="text-primary inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.2em] uppercase">
-              <Sparkles className="size-3.5" aria-hidden />
-              {t("eyebrow")}
-            </p>
-            <h1 className="text-text-strong mt-4 text-3xl font-semibold tracking-tight text-balance sm:text-4xl md:text-[2.4rem] md:leading-[1.12]">
-              {t("heroTitle")}
-            </h1>
-            <p className="text-muted-foreground mt-4 max-w-lg text-[15px] leading-relaxed">{t("heroLead")}</p>
-            <p className="text-muted-foreground mt-2 text-sm font-medium">{tBrand("tagline")}</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-nowrap sm:items-stretch sm:gap-4">
-              <Button
-                asChild
-                size="lg"
-                className="h-auto min-h-12 w-full gap-2.5 rounded-2xl px-8 py-3.5 text-base font-semibold shadow-[var(--shadow-brand)] sm:w-auto"
-              >
-                <Link href="/guardians" className="gap-2.5">
-                  <Users className="size-5 shrink-0" aria-hidden />
-                  {t("ctaPrimaryRequest")}
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-primary/25 h-auto min-h-12 w-full gap-2.5 rounded-2xl border-2 bg-white/90 px-8 py-3.5 text-base font-semibold shadow-sm backdrop-blur-sm sm:w-auto hover:bg-white"
-              >
-                <Link href="/explore" className="gap-2 whitespace-nowrap">
-                  <Compass className="size-5 shrink-0 text-primary" aria-hidden />
-                  <span>{t("ctaSecondaryExplore")}</span>
-                  <ArrowRight className="size-5 shrink-0 text-primary" aria-hidden />
-                </Link>
-              </Button>
-            </div>
-            <p className="mt-6 text-xs leading-relaxed text-muted-foreground">{t("scopeNote")}</p>
-          </div>
-          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-            <div className="border-border/60 relative aspect-[4/5] overflow-hidden rounded-[2rem] border bg-white shadow-[var(--shadow-md)] sm:aspect-[5/6] lg:aspect-[4/5]">
-              <Image
-                src="https://images.unsplash.com/photo-1538485399081-7191377e8241?w=900&q=80"
-                alt=""
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0e1b3d]/55 via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 space-y-3 p-6 text-white">
-                <p className="text-[10px] font-bold tracking-widest text-white/70 uppercase">Seoul · curated</p>
-                <p className="text-lg font-semibold leading-snug text-balance">
-                  {isKo ? "장면처럼 남는 서울의 하루" : "A Seoul day that feels like a scene"}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HomeHeroCarousel />
 
-      {/* Launch regions */}
-      <section className="border-border/50 border-y bg-white/90">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-          <div className="mb-10 max-w-xl">
-            <p className="text-primary text-[11px] font-semibold tracking-[0.2em] uppercase">{t("regionsSectionEyebrow")}</p>
-            <h2 className="text-text-strong mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-              {t("regionsSectionTitle")}
-            </h2>
-            <p className="text-muted-foreground mt-3 text-sm leading-relaxed">{t("regionsSectionLead")}</p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {mockLaunchAreas.map((a) => {
-              const copy = tLaunch.raw(a.slug) as {
-                name: string;
-                blurb: string;
-                landmark: string;
-                imageAlt: string;
-              };
-              return (
-                <Link
-                  key={a.slug}
-                  href={a.active ? `/explore?area=${a.slug}` : "#coming-cities"}
-                  className="group border-border/70 bg-card relative flex flex-col overflow-hidden rounded-2xl border shadow-[var(--shadow-sm)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]"
-                >
-                  <div className="relative aspect-[16/11]">
-                    <Image
-                      src={a.imageUrl}
-                      alt={copy.imageAlt}
-                      fill
-                      className="object-cover transition duration-500 group-hover:scale-[1.03]"
-                      sizes="(max-width:640px) 100vw, 25vw"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
-                    <div className="absolute top-3 right-3">
-                      {a.comingSoon ? (
-                        <Badge variant="secondary" className="bg-white/95 text-[10px] font-semibold">
-                          {t("launchBadgeSoon")}
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-[var(--success)] text-[10px] font-semibold text-white hover:bg-[var(--success)]">
-                          {t("launchBadgeLive")}
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="absolute right-3 bottom-3 left-3">
-                      <p className="line-clamp-2 text-sm font-semibold leading-tight text-balance text-white drop-shadow-md">
-                        {copy.landmark}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-1 flex-col p-4">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="text-primary size-4 shrink-0" aria-hidden />
-                      <span className="text-foreground font-semibold">{copy.name}</span>
-                    </div>
-                    <p className="text-muted-foreground mt-1 text-xs font-medium">{copy.landmark}</p>
-                    <p className="text-muted-foreground mt-2 flex-1 text-sm leading-relaxed">{copy.blurb}</p>
-                    {a.active ? (
-                      <span className="text-primary mt-3 inline-flex items-center gap-1 text-sm font-semibold">
-                        {t("regionsSectionCta")}
-                        <ChevronRight className="size-4" />
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground mt-3 text-xs font-medium">{t("comingSectionTitle")}</span>
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Experience themes */}
-      <section className="bg-muted/15">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-          <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="max-w-xl">
-              <p className="text-primary text-[11px] font-semibold tracking-[0.2em] uppercase">{t("themesSectionEyebrow")}</p>
-              <h2 className="text-text-strong mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">{t("themesSectionTitle")}</h2>
-              <p className="text-muted-foreground mt-3 text-sm leading-relaxed">{t("themesSectionLead")}</p>
-            </div>
-            <Button asChild variant="outline" className="rounded-xl">
-              <Link href="/explore">{t("themesCta")}</Link>
-            </Button>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {mockExperienceThemes.map((th) => {
-              const copy = tThemes.raw(th.slug) as { title: string; subtitle: string };
-              return (
-                <Link
-                  key={th.slug}
-                  href={`/explore?theme=${th.slug}`}
-                  className="border-border/60 relative overflow-hidden rounded-2xl border bg-white p-5 shadow-[var(--shadow-sm)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]"
-                >
-                  <div className="mb-4 h-2 w-full rounded-full" style={{ background: th.gradient }} />
-                  <h3 className="text-foreground font-semibold">{copy.title}</h3>
-                  <p className="text-muted-foreground mt-2 text-sm">{copy.subtitle}</p>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      <HomeQuickStartExplorer />
 
       {/* Recommended guardians */}
       <section className="bg-white">
@@ -228,7 +58,7 @@ export async function HomeFortyTwoPage() {
           <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="text-text-strong text-2xl font-semibold tracking-tight sm:text-3xl">{t("featuredGuardiansSectionTitle")}</h2>
-              <p className="text-muted-foreground mt-2 text-sm">{isKo ? "검증·언어·리뷰로 고른 로컬 가디언" : "Local experts curated for trust signals."}</p>
+              <p className="text-muted-foreground mt-2 text-sm">{t("featuredGuardiansSectionLead")}</p>
             </div>
             <Button asChild variant="ghost" className="text-primary font-semibold">
               <Link href="/guardians">
@@ -394,45 +224,34 @@ export async function HomeFortyTwoPage() {
         </div>
       </section>
 
-      {/* Signup CTA */}
-      <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-18">
-        <div className="border-border/60 from-card to-muted/20 rounded-[1.75rem] border bg-gradient-to-br p-8 sm:p-10 md:p-12">
-          <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-            <div className="max-w-lg">
-              <h2 className="text-text-strong text-xl font-semibold tracking-tight sm:text-2xl">{t("signupSectionTitle")}</h2>
-              <p className="text-muted-foreground mt-3 text-sm leading-relaxed">{t("signupSectionLead")}</p>
-            </div>
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-              <Button asChild size="lg" className="rounded-2xl px-8">
-                <Link href="/login">{t("signupCta")}</Link>
+      {/* Traveler + Guardian CTA */}
+      <section className="mx-auto max-w-6xl px-4 py-14 pb-20 sm:px-6 sm:py-18 sm:pb-24">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="border-border/60 from-card to-muted/15 flex flex-col rounded-[1.75rem] border bg-gradient-to-br p-8 shadow-[var(--shadow-sm)] sm:p-10">
+            <h2 className="text-text-strong text-xl font-semibold tracking-tight text-balance sm:text-2xl">{t("dualCtaTravelerTitle")}</h2>
+            <p className="text-muted-foreground mt-3 text-sm leading-relaxed">{t("dualCtaTravelerLead")}</p>
+            <div className="mt-8 flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap">
+              <Button asChild size="lg" className="rounded-2xl px-8 shadow-[var(--shadow-brand)]">
+                <Link href="/guardians">{t("dualCtaTravelerPrimary")}</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-2xl">
-                <Link href="/login">{t("signupSecondary")}</Link>
+              <Button asChild size="lg" variant="outline" className="rounded-2xl border-2 bg-white/90">
+                <Link href="/explore">{t("dualCtaTravelerSecondary")}</Link>
               </Button>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Final gradient CTA */}
-      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20">
-        <div className="bg-cta-brand text-primary-foreground flex flex-col items-start justify-between gap-8 rounded-[1.75rem] p-8 sm:flex-row sm:items-center sm:p-11">
-          <div className="max-w-md">
-            <h2 className="text-xl font-semibold tracking-tight text-balance sm:text-2xl">{t("ctaTitle")}</h2>
-            <p className="mt-3 text-sm leading-relaxed text-white/90">{t("ctaLead")}</p>
-          </div>
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-            <Button
-              asChild
-              size="lg"
-              variant="secondary"
-              className="rounded-2xl border border-white/35 bg-white font-semibold text-[var(--brand-primary)]"
-            >
-              <Link href="/guardians">{t("ctaPrimaryRequest")}</Link>
-            </Button>
-            <Button asChild size="lg" variant="ghost" className="rounded-2xl font-semibold text-white hover:bg-white/15">
-              <Link href="/explore">{t("ctaSecondaryExplore")}</Link>
-            </Button>
+          <div className="bg-cta-brand text-primary-foreground flex flex-col rounded-[1.75rem] p-8 sm:p-10">
+            <h2 className="text-xl font-semibold tracking-tight text-balance sm:text-2xl">{t("dualCtaGuardianTitle")}</h2>
+            <p className="mt-3 text-sm leading-relaxed text-white/90">{t("dualCtaGuardianLead")}</p>
+            <div className="mt-8">
+              <Button
+                asChild
+                size="lg"
+                variant="secondary"
+                className="rounded-2xl border border-white/35 bg-white font-semibold text-[var(--brand-primary)]"
+              >
+                <Link href="/guardians/apply">{t("dualCtaGuardianButton")}</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>

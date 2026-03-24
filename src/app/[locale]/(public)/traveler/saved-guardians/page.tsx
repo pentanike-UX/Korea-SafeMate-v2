@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { mockTravelerSavedGuardianIds } from "@/data/mock";
 import { listPublicGuardians } from "@/lib/guardian-public";
+import { getTravelerSavedGuardianIds } from "@/lib/traveler-saved-guardians-cookie";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { TrustBadgesServer } from "@/components/forty-two/trust-badges-server";
@@ -17,7 +17,8 @@ export async function generateMetadata() {
 export default async function TravelerSavedGuardiansPage() {
   const t = await getTranslations("TravelerHub");
   const all = listPublicGuardians();
-  const saved = mockTravelerSavedGuardianIds.map((id) => all.find((g) => g.user_id === id)).filter(Boolean) as ReturnType<
+  const cookieIds = await getTravelerSavedGuardianIds();
+  const saved = cookieIds.map((id) => all.find((g) => g.user_id === id)).filter(Boolean) as ReturnType<
     typeof listPublicGuardians
   >;
 
@@ -27,6 +28,15 @@ export default async function TravelerSavedGuardiansPage() {
         <h2 className="text-text-strong text-xl font-semibold">{t("savedGuardiansTitle")}</h2>
         <p className="text-muted-foreground mt-2 text-sm">{t("savedGuardiansLead")}</p>
       </div>
+      {saved.length === 0 ? (
+        <div className="border-border/60 rounded-2xl border border-dashed bg-muted/10 px-6 py-14 text-center">
+          <p className="text-foreground text-sm font-semibold">{t("savedGuardiansEmptyTitle")}</p>
+          <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{t("savedGuardiansEmptyLead")}</p>
+          <Button asChild className="mt-6 rounded-xl">
+            <Link href="/guardians">{t("savedGuardiansBrowse")}</Link>
+          </Button>
+        </div>
+      ) : null}
       <ul className="grid gap-4 sm:grid-cols-2">
         {saved.map((g) => (
           <li key={g.user_id}>

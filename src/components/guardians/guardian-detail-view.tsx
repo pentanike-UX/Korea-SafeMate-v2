@@ -2,6 +2,7 @@ import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { mockContentPosts, mockTravelerReviews, mockTravelerReviewQuotes } from "@/data/mock";
+import { getContentPostFormat, postHasRouteJourney } from "@/lib/content-post-route";
 import { isActiveLaunchArea, type PublicGuardian } from "@/lib/guardian-public";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -125,18 +126,40 @@ export async function GuardianDetailView({ guardian: g }: { guardian: PublicGuar
               <p className="text-muted-foreground mt-3 text-sm">{t("noPosts")}</p>
             ) : (
               <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-                {posts.map((p) => (
-                  <li key={p.id}>
-                    <Link
-                      href={`/posts/${p.id}`}
-                      className="border-border/70 bg-card block h-full rounded-2xl border p-4 shadow-[var(--shadow-sm)] transition-colors hover:border-primary/25"
-                    >
-                      <p className="text-foreground font-semibold leading-snug">{p.title}</p>
-                      <p className="text-muted-foreground mt-2 line-clamp-2 text-sm">{p.summary}</p>
-                      <span className="text-primary mt-3 inline-block text-xs font-semibold">{t("readPost")}</span>
-                    </Link>
-                  </li>
-                ))}
+                {posts.map((p) => {
+                  const fmt = getContentPostFormat(p);
+                  const route = postHasRouteJourney(p);
+                  const fmtLabel =
+                    fmt === "hybrid"
+                      ? t("postFormatHybrid")
+                      : fmt === "route"
+                        ? t("postFormatRoute")
+                        : fmt === "spot"
+                          ? t("postFormatSpot")
+                          : t("postFormatArticle");
+                  return (
+                    <li key={p.id}>
+                      <Link
+                        href={`/posts/${p.id}`}
+                        className="border-border/70 bg-card block h-full rounded-2xl border p-4 shadow-[var(--shadow-sm)] transition-colors hover:border-primary/25"
+                      >
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase">
+                            {fmtLabel}
+                          </span>
+                          {route ? (
+                            <span className="text-muted-foreground text-[10px] font-medium">
+                              {t("stopsLabel", { count: p.route_journey!.spots.length })}
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="text-foreground mt-2 font-semibold leading-snug">{p.title}</p>
+                        <p className="text-muted-foreground mt-2 line-clamp-2 text-sm">{p.summary}</p>
+                        <span className="text-primary mt-3 inline-block text-xs font-semibold">{t("readPost")}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </section>

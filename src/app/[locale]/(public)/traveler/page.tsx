@@ -1,10 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import {
-  mockTravelerSavedGuardianIds,
-  mockTravelerSavedPostIds,
-  mockTravelerTripRequests,
-} from "@/data/mock";
+import { mockTravelerSavedPostIds, mockTravelerTripRequests } from "@/data/mock";
+import { getTravelerSavedGuardianIds } from "@/lib/traveler-saved-guardians-cookie";
 import { mockGuardians } from "@/data/mock";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,7 +19,8 @@ export async function generateMetadata() {
 export default async function TravelerOverviewPage() {
   const t = await getTranslations("TravelerHub");
   const openRequests = mockTravelerTripRequests.filter((r) => r.status === "requested" || r.status === "reviewing");
-  const savedG = mockTravelerSavedGuardianIds.length;
+  const savedGuardianIds = await getTravelerSavedGuardianIds();
+  const savedG = savedGuardianIds.length;
   const savedP = mockTravelerSavedPostIds.length;
 
   return (

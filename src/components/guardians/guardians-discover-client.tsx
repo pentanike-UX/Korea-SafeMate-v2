@@ -12,10 +12,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { TrustBadgeRow } from "@/components/forty-two/trust-badges";
 import { guardianTierBadgeVariant } from "@/lib/guardian-tier-ui";
+import { SaveGuardianButton } from "@/components/guardians/save-guardian-button";
 import { cn } from "@/lib/utils";
 import { MapPin, SlidersHorizontal, Star } from "lucide-react";
 
-type SortMode = "recommended" | "rating" | "reviews";
+type SortMode = "recommended" | "rating" | "reviews" | "fast";
 
 const LANGS = ["en", "ko", "ja", "es"] as const;
 const THEMES = ["k_drama_romance", "k_pop_day", "seoul_night", "movie_location", "safe_solo", "photo_route"] as const;
@@ -73,6 +74,13 @@ export function GuardiansDiscoverClient() {
       g.sort((a, b) => (b.avg_traveler_rating ?? 0) - (a.avg_traveler_rating ?? 0));
     } else if (sort === "reviews") {
       g.sort((a, b) => b.review_count_display - a.review_count_display);
+    } else if (sort === "fast") {
+      g.sort((a, b) => {
+        const af = a.trust_badge_ids.includes("fast_response");
+        const bf = b.trust_badge_ids.includes("fast_response");
+        if (af !== bf) return af ? -1 : 1;
+        return (b.avg_traveler_rating ?? 0) - (a.avg_traveler_rating ?? 0);
+      });
     } else {
       g.sort((a, b) => {
         const vf = (x: PublicGuardian) => (x.matching_enabled ? 2 : 0) + (x.featured ? 1 : 0);
@@ -190,7 +198,7 @@ export function GuardiansDiscoverClient() {
             <div>
               <p className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wide">{t("sort")}</p>
               <div className="flex flex-wrap gap-1.5">
-                {(["recommended", "rating", "reviews"] as const).map((m) => (
+                {(["recommended", "rating", "reviews", "fast"] as const).map((m) => (
                   <Button
                     key={m}
                     type="button"
@@ -199,7 +207,13 @@ export function GuardiansDiscoverClient() {
                     className="rounded-full text-xs"
                     onClick={() => setSort(m)}
                   >
-                    {m === "recommended" ? t("sortRecommended") : m === "rating" ? t("sortRating") : t("sortReviews")}
+                    {m === "recommended"
+                      ? t("sortRecommended")
+                      : m === "rating"
+                        ? t("sortRating")
+                        : m === "reviews"
+                          ? t("sortReviews")
+                          : t("sortFast")}
                   </Button>
                 ))}
               </div>
@@ -289,7 +303,10 @@ export function GuardiansDiscoverClient() {
         </div>
 
         {filtered.length === 0 ? (
-          <p className="text-muted-foreground py-16 text-center text-sm">{t("empty")}</p>
+          <div className="border-border/60 mx-auto max-w-lg rounded-2xl border border-dashed bg-muted/10 px-6 py-16 text-center">
+            <p className="text-foreground text-sm font-semibold">{t("empty")}</p>
+            <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{t("emptyBody")}</p>
+          </div>
         ) : (
           <ul className="grid gap-6 lg:grid-cols-2">
             {filtered.map((g) => {
@@ -336,7 +353,7 @@ export function GuardiansDiscoverClient() {
                             <Star className="size-4 fill-amber-400 text-amber-400" aria-hidden />
                             {g.avg_traveler_rating.toFixed(1)}
                             <span className="text-muted-foreground font-normal">
-                              ({g.review_count_display} {isKo ? "리뷰" : "reviews"})
+                              ({g.review_count_display} {t("reviewsWord")})
                             </span>
                           </p>
                         ) : null}
@@ -355,11 +372,14 @@ export function GuardiansDiscoverClient() {
                             <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{rep.summary}</p>
                           </div>
                         ) : null}
-                        <div className="mt-auto flex flex-col gap-2 pt-2 sm:flex-row">
-                          <Button asChild className="flex-1 rounded-xl">
+                        <div className="mt-auto grid gap-2 pt-2 sm:grid-cols-3">
+                          <Button asChild className="rounded-xl sm:col-span-1">
                             <Link href={`/guardians/${g.user_id}`}>{t("cardCtaPrimary")}</Link>
                           </Button>
-                          <Button asChild variant="outline" className="flex-1 rounded-xl">
+                          <div className="sm:col-span-1">
+                            <SaveGuardianButton guardianUserId={g.user_id} />
+                          </div>
+                          <Button asChild variant="outline" className="rounded-xl sm:col-span-1">
                             <Link href={`/book?guardian=${g.user_id}`}>{t("cardCtaSecondary")}</Link>
                           </Button>
                         </div>
@@ -371,6 +391,14 @@ export function GuardiansDiscoverClient() {
             })}
           </ul>
         )}
+
+        <section className="border-border/60 from-card to-muted/20 mt-16 rounded-[1.75rem] border bg-gradient-to-br p-8 sm:p-10">
+          <h2 className="text-text-strong text-xl font-semibold tracking-tight">{t("footerCtaTitle")}</h2>
+          <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-relaxed">{t("footerCtaBody")}</p>
+          <Button asChild className="mt-6 rounded-2xl">
+            <Link href="/guardians/apply">{t("footerCtaButton")}</Link>
+          </Button>
+        </section>
       </div>
     </div>
   );

@@ -2,14 +2,13 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { ContentPost } from "@/types/domain";
-import { getPublicGuardianById } from "@/lib/guardian-public";
 import { relatedPostsFor } from "@/lib/posts-public";
+import { postHasRouteJourney } from "@/lib/content-post-route";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { TrustBadgesServer } from "@/components/forty-two/trust-badges-server";
+import { PostAuthorAside } from "@/components/posts/post-author-aside";
+import { RoutePostDetailView } from "@/components/posts/route-post-detail-view";
 import { ArrowLeft, Calendar, Heart, MapPin } from "lucide-react";
-import { guardianTierBadgeVariant } from "@/lib/guardian-tier-ui";
 
 function heroGradient(post: ContentPost) {
   const hue = post.title.length * 17 + post.kind.length * 40;
@@ -17,10 +16,12 @@ function heroGradient(post: ContentPost) {
 }
 
 export async function PostDetailView({ post }: { post: ContentPost }) {
+  if (postHasRouteJourney(post)) {
+    return <RoutePostDetailView post={post} />;
+  }
+
   const t = await getTranslations("Posts");
-  const tTier = await getTranslations("GuardianTier");
   const related = relatedPostsFor(post, 4);
-  const guardian = getPublicGuardianById(post.author_user_id);
 
   const date = new Date(post.created_at).toLocaleDateString(undefined, {
     year: "numeric",
@@ -96,51 +97,9 @@ export async function PostDetailView({ post }: { post: ContentPost }) {
           </div>
         </div>
 
-        <aside className="space-y-6 lg:col-span-4">
-          <Card className="border-border/60 overflow-hidden rounded-2xl py-0 shadow-[var(--shadow-sm)]">
-            <div className="relative aspect-[16/10]">
-              {guardian ? (
-                <Image src={guardian.photo_url} alt="" fill className="object-cover" sizes="400px" />
-              ) : (
-                <div className="flex h-full items-center justify-center bg-gradient-to-br from-[var(--brand-primary-soft)] to-[var(--brand-trust-blue-soft)] text-2xl font-bold text-primary/40">
-                  42
-                </div>
-              )}
-            </div>
-            <CardContent className="space-y-3 p-5">
-              <p className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">{t("authorCardEyebrow")}</p>
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="text-lg font-semibold">{post.author_display_name}</p>
-                {guardian ? (
-                  <Badge variant={guardianTierBadgeVariant(guardian.guardian_tier)} className="text-[10px]">
-                    {tTier(guardian.guardian_tier)}
-                  </Badge>
-                ) : null}
-              </div>
-              {guardian ? (
-                <>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{guardian.headline}</p>
-                  <TrustBadgesServer ids={guardian.trust_badge_ids} size="xs" />
-                  <Button asChild className="w-full rounded-xl">
-                    <Link href={`/guardians/${guardian.user_id}`}>{t("viewGuardian")}</Link>
-                  </Button>
-                  <Button asChild variant="outline" className="w-full rounded-xl">
-                    <Link href={`/book?guardian=${guardian.user_id}`}>{t("requestWithGuardian")}</Link>
-                  </Button>
-                </>
-              ) : (
-                <p className="text-muted-foreground text-sm">{t("authorFallback")}</p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/60 rounded-2xl border bg-white/90 shadow-none">
-            <CardContent className="space-y-2 p-5">
-              <p className="text-sm font-semibold">{t("trustNoteTitle")}</p>
-              <p className="text-muted-foreground text-sm leading-relaxed">{t("trustNoteBody")}</p>
-            </CardContent>
-          </Card>
-        </aside>
+        <div className="lg:col-span-4">
+          <PostAuthorAside post={post} />
+        </div>
       </div>
 
       {related.length > 0 ? (

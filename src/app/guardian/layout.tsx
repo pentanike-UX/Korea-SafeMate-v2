@@ -16,7 +16,10 @@ export default function GuardianAppLayout({ children }: { children: React.ReactN
               <Link href="/guardian/onboarding">Onboarding</Link>
             </Button>
             <Button asChild variant="ghost" size="sm" className="rounded-xl text-muted-foreground">
-              <Link href="/posts">Insights</Link>
+              <Link href="/guardian/posts">My posts</Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="rounded-xl text-muted-foreground">
+              <Link href="/guardian/posts/new">New route</Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="rounded-xl">
               <Link href="/">Exit</Link>

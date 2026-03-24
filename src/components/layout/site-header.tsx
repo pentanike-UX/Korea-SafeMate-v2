@@ -28,40 +28,74 @@ export function SiteHeader() {
   const tNav = useTranslations("Nav");
   const tHeader = useTranslations("Header");
   const tBrand = useTranslations("Brand");
+  const isHome = pathname === "/";
 
-  const NavLinks = ({ mobile = false }: { mobile?: boolean }) => (
-    <nav className={cn("flex gap-1", mobile ? "flex-col gap-2" : "items-center")}>
-      {NAV.map((item) => {
-        const active = isNavActive(item.href, pathname);
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-              mobile ? "text-base" : "",
-              active
-                ? "bg-[var(--brand-primary-soft)] text-[var(--brand-primary)] ring-1 ring-[color-mix(in_srgb,var(--brand-primary)_22%,transparent)]"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
-            {tNav(item.msgKey)}
-          </Link>
-        );
-      })}
-    </nav>
-  );
+  const NavLinks = ({ mobile = false }: { mobile?: boolean }) => {
+    const glassHeaderNav = isHome && !mobile;
+    return (
+      <nav className={cn("flex gap-1", mobile ? "flex-col gap-2" : "items-center")}>
+        {NAV.map((item) => {
+          const active = isNavActive(item.href, pathname);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                mobile ? "text-base" : "",
+                glassHeaderNav
+                  ? active
+                    ? "bg-white/18 text-white ring-1 ring-white/30"
+                    : "text-white/85 hover:bg-white/10 hover:text-white"
+                  : active
+                    ? "bg-[var(--brand-primary-soft)] text-[var(--brand-primary)] ring-1 ring-[color-mix(in_srgb,var(--brand-primary)_22%,transparent)]"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              {tNav(item.msgKey)}
+            </Link>
+          );
+        })}
+      </nav>
+    );
+  };
 
   return (
-    <header className="from-background/95 via-background/90 to-background/80 supports-[backdrop-filter]:bg-background/75 sticky top-0 z-50 border-b border-border/70 bg-gradient-to-b shadow-[var(--shadow-sm)] backdrop-blur-md">
+    <header
+      className={cn(
+        "sticky top-0 z-50 border-b backdrop-blur-xl",
+        isHome
+          ? "border-white/10 bg-black/22 shadow-none supports-[backdrop-filter]:bg-black/18"
+          : "from-background/95 via-background/90 to-background/80 supports-[backdrop-filter]:bg-background/75 border-border/70 bg-gradient-to-b shadow-[var(--shadow-sm)] backdrop-blur-md",
+      )}
+    >
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:h-16 sm:gap-4 sm:px-6">
         <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2.5">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-trust-blue)] text-sm font-bold text-white shadow-md ring-2 ring-[color-mix(in_srgb,var(--brand-primary)_30%,transparent)]">
+          <span
+            className={cn(
+              "flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-trust-blue)] text-sm font-bold text-white shadow-md ring-2",
+              isHome ? "ring-white/25" : "ring-[color-mix(in_srgb,var(--brand-primary)_30%,transparent)]",
+            )}
+          >
             42
           </span>
           <div className="min-w-0 leading-tight">
-            <span className="block truncate text-sm font-semibold tracking-tight">{BRAND.name}</span>
-            <span className="text-muted-foreground hidden truncate text-[10px] font-medium sm:block">{tBrand("tagline")}</span>
+            <span
+              className={cn(
+                "block truncate text-sm font-semibold tracking-tight",
+                isHome ? "text-white" : "text-foreground",
+              )}
+            >
+              {BRAND.name}
+            </span>
+            <span
+              className={cn(
+                "hidden truncate text-[10px] font-medium sm:block",
+                isHome ? "text-white/65" : "text-muted-foreground",
+              )}
+            >
+              {tBrand("tagline")}
+            </span>
           </div>
         </Link>
 
@@ -70,20 +104,42 @@ export function SiteHeader() {
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <LanguageSwitcher className="hidden sm:flex" />
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+          <LanguageSwitcher className="hidden sm:flex" variant={isHome ? "onDark" : "default"} />
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className={cn("hidden sm:inline-flex", isHome && "text-white/90 hover:bg-white/10 hover:text-white")}
+          >
             <Link href="/traveler">{tHeader("myJourney")}</Link>
           </Button>
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className={cn("hidden sm:inline-flex", isHome && "text-white/90 hover:bg-white/10 hover:text-white")}
+          >
             <Link href="/login">{tHeader("logIn")}</Link>
           </Button>
-          <Button asChild size="sm" className="hidden sm:inline-flex rounded-xl px-4 font-semibold shadow-sm">
+          <Button
+            asChild
+            size="sm"
+            className={cn(
+              "hidden sm:inline-flex rounded-xl px-4 font-semibold shadow-sm",
+              isHome && "border-0 bg-white text-[var(--brand-primary)] hover:bg-white/90",
+            )}
+          >
             <Link href="/guardians">{tHeader("findGuardians")}</Link>
           </Button>
 
           <Sheet>
             <SheetTrigger
-              className="border-input bg-background hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 inline-flex size-8 shrink-0 items-center justify-center rounded-lg border outline-none focus-visible:ring-3 md:hidden"
+              className={cn(
+                "inline-flex size-8 shrink-0 items-center justify-center rounded-lg border outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:hidden",
+                isHome
+                  ? "border-white/25 bg-white/10 text-white hover:bg-white/15"
+                  : "border-input bg-background hover:bg-muted hover:text-foreground",
+              )}
               aria-label={tHeader("openMenu")}
             >
               <Menu className="size-5" />
